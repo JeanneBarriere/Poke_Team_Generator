@@ -16,15 +16,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from teambuilding import views
+from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    # teams
+    # User
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
+    path('create_user/', views.create_user),
+
+    # Team
     path('getTeams/', views.get_teams),
     path('addTeam/', views.add_team),
     path('editTeam/', views.edit_team),
     path('getTeamTitle/', views.get_teams_title)
-
-
 ]

@@ -3,12 +3,12 @@ import 'package:front/config/palette.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:front/model/pokedex_model.dart';
 import 'package:front/model/team_model.dart';
-import 'package:front/pages/pokemon_page.dart';
 import 'package:front/pages/list_team_page.dart';
 import 'package:front/widget/display_icon_small_banner_widget.dart';
 import 'package:front/widget/display_stats_widget.dart';
 import 'package:front/widget/display_types_widget.dart';
 import '../widget/navigation_drawer_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -34,6 +34,7 @@ class _NewTeamPage extends State<TeamPage> {
   String _Title = "";
   String _NewTitle = "";
   bool _update = false;
+  int? _current = null;
 
   _NewTeamPage(String teamTitle) {
     if (teamTitle != "" && teamTitle != null) {
@@ -51,20 +52,6 @@ class _NewTeamPage extends State<TeamPage> {
     return pokedex;
   }
 
-  Future<Poke> _dataPoke(pokename) async {
-    var response = await http
-        .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/' + pokename));
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      Poke poke = Poke.fromJson(jsonResponse);
-      return poke;
-    } else if (response.statusCode == 404) {
-      Poke poke = Poke.fromnull();
-      return poke;
-    }
-    return Future.error("error");
-  }
-
   Future<Poke> _dataPokeDetail() async {
     var response = await http
         .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/' + _PokeName));
@@ -80,10 +67,15 @@ class _NewTeamPage extends State<TeamPage> {
   }
 
   Future<Poke> _addTeam() async {
-    var response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/addTeam/?format=json'),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode({'title': _NewTitle, 'team': _Team}));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    var response =
+        await http.post(Uri.parse('http://10.0.2.2:8000/addTeam/?format=json'),
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "token " + prefs.getString('token')! ?? ""
+            },
+            body: json.encode({'title': _NewTitle, 'team': _Team}));
     if (response.statusCode == 200) {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
@@ -195,7 +187,21 @@ class _NewTeamPage extends State<TeamPage> {
                     ],
                   ),
                 ),
-                DisplayIconSmallBannerWidgets(listPoke: _Team),
+                DisplayIconSmallBannerWidgets(
+                  listPoke: _Team,
+                  onPress: (int? newValue) {
+                    setState(() {
+                      if (newValue != null) {
+                        _current = newValue!;
+                        _PokeName = _Team[newValue];
+                      } else {
+                        _PokeName = 'pikachu';
+                        _current = null;
+                      }
+                    });
+                  },
+                  current: _current,
+                ),
                 FutureBuilder<Pokedex>(
                     future: _dataPokedex(),
                     builder: (BuildContext context,
@@ -217,8 +223,12 @@ class _NewTeamPage extends State<TeamPage> {
                                 Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Flexible(
+                                        Container(
+                                          height: 40,
+                                          width: 220,
                                           child: Autocomplete(
                                             optionsBuilder: (TextEditingValue
                                                 textEditingValue) {
@@ -258,38 +268,88 @@ class _NewTeamPage extends State<TeamPage> {
                                                           Color(0xFFFAFAFAf)),
                                                   fillColor: Color(0xFF333333f),
                                                   filled: true,
-                                                  enabledBorder:
-                                                      UnderlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                        color:
-                                                            Color(0xFFCF1B1B)),
-                                                  ),
+                                                  // enabledBorder:
+                                                  //     UnderlineInputBorder(
+                                                  //   borderSide: BorderSide(
+                                                  //       color:
+                                                  //           Color(0xFFCF1B1B)),
+                                                  // ),
                                                 ),
                                               );
                                             },
                                           ),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.all(4.0),
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                                primary: _Team.length < 6
-                                                    ? Palette.kToDark
-                                                    : Color(0xFF727171),
-                                                minimumSize:
-                                                    const Size(125, 60)),
-                                            onPressed: () {
-                                              if (_Team.length < 6) {
-                                                setState(() {
-                                                  _Team.add(_PokeName);
-                                                });
-                                              }
-                                            },
-                                            child: const Text('Add Pokemon'),
-                                          ),
+                                          padding:
+                                              const EdgeInsets.only(left: 4),
+                                          child: _current == null
+                                              ? ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          primary: _Team
+                                                                      .length <
+                                                                  6
+                                                              ? Palette.kToDark
+                                                              : const Color(
+                                                                  0xFF727171),
+                                                          minimumSize:
+                                                              const Size(
+                                                                  100, 38)),
+                                                  onPressed: () {
+                                                    if (_Team.length < 6) {
+                                                      setState(() {
+                                                        _Team.add(_PokeName);
+                                                      });
+                                                    }
+                                                  },
+                                                  child:
+                                                      const Text('Add Pokemon'),
+                                                )
+                                              : ElevatedButton(
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          primary: _Team
+                                                                      .length <
+                                                                  6
+                                                              ? Palette.kToDark
+                                                              : const Color(
+                                                                  0xFF727171),
+                                                          minimumSize:
+                                                              const Size(
+                                                                  100, 38)),
+                                                  onPressed: () {
+                                                    if (_Team.length < 6) {
+                                                      setState(() {
+                                                        _Team[_current!] =
+                                                            _PokeName;
+                                                      });
+                                                    }
+                                                  },
+                                                  child: const Text('Change'),
+                                                ),
                                         ),
                                       ],
                                     )),
+                                Padding(
+                                  padding: const EdgeInsets.all(4),
+                                  child: _current != null
+                                      ? ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                              primary: _Team.length < 6
+                                                  ? Palette.kToDark
+                                                  : const Color(0xFF727171),
+                                              minimumSize: const Size(50, 38)),
+                                          onPressed: () {
+                                            setState(() {
+                                              _Team.removeAt(_current!);
+                                              _current = null;
+                                              _PokeName = 'bulbasaur';
+                                            });
+                                          },
+                                          child: const Text('Delete'),
+                                        )
+                                      : Container(),
+                                ),
                               ],
                             );
                           }

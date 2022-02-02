@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:front/model/team_list_model.dart';
 import 'package:front/pages/team_page.dart';
 import '../widget/navigation_drawer_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
@@ -17,8 +18,10 @@ class TeamListPage extends StatefulWidget {
 
 class _TeamListPage extends State<TeamListPage> {
   Future<TeamList> _dataTeamList() async {
-    var response =
-        await http.get(Uri.parse('http://10.0.2.2:8000/getTeams/?format=json'));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/getTeams/?format=json'),
+        headers: {"Authorization": "token " + prefs.getString('token')! ?? ""});
 
     final jsonResponse = jsonDecode(response.body);
     TeamList teamList = TeamList.fromJson(jsonResponse);
@@ -95,7 +98,7 @@ class _TeamListPage extends State<TeamListPage> {
                                                                     key:
                                                                         UniqueKey(),
                                                                     title:
-                                                                        "New Team",
+                                                                        "Edit Team",
                                                                     teamTitle:
                                                                         item!,
                                                                   ),

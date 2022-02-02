@@ -1,17 +1,17 @@
-from turtle import title
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework import permissions
 from teambuilding.models import Team
+from django.contrib.auth.models import User
 import simplejson as json
 
 
 # Create your views here.
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes((permissions.IsAuthenticated,))
 def get_teams(request):
-    team_list = Team.objects.all()
+    author = User.objects.get(id=request.user.id)
+    team_list = Team.objects.filter(author=author)
     table_result = []
     for team in team_list:
         table_result.append(team.title)
@@ -20,7 +20,7 @@ def get_teams(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([permissions.AllowAny])
 def get_teams_title(request):
     team = Team.objects.get(title=request.data['title'])
     current_team = {}
@@ -33,7 +33,6 @@ def get_teams_title(request):
     team_result = []
     for t in team_list:
         team_result.append(t.lower())
-
     current_team['team'] = team_result
 
     current = {'team': current_team}
@@ -41,18 +40,19 @@ def get_teams_title(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes((permissions.IsAuthenticated,))
 def add_team(request):
     team = Team.objects.create(
         title=request.data["title"],
-        team=request.data["team"]
+        team=request.data["team"],
+        author=User.objects.get(id=request.user.id)
     )
     team.save()
     return HttpResponse(json.dumps("Team added successfuly"), status=200)
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([permissions.AllowAny])
 def edit_team(request):
     team = Team.objects.get(title=request.data['title'])
     team.title = request.data['newTitle']
