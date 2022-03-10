@@ -1,6 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.Dart';
-
 class Pokedex {
   final List<String>? names;
 

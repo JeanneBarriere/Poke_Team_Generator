@@ -1,6 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.Dart';
-
 class Team {
   final String? title;
   final List<String> pokemon;

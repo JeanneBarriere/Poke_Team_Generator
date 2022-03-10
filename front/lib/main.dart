@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Teams Generator',
         theme: ThemeData(
+          cardColor: Palette.kToDark.shade300,
           scaffoldBackgroundColor: const Color(0xFF020202f),
           primarySwatch: Palette.kToDark,
           fontFamily: GoogleFonts.nunito().fontFamily,

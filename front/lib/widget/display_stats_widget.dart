@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DisplayStatsWidgets extends StatelessWidget {
-  final List<int?> strings;
+  final List<int?> stats;
 
-  const DisplayStatsWidgets({Key? key, required this.strings})
-      : super(key: key);
+  const DisplayStatsWidgets({Key? key, required this.stats}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     List<String> statsLabel = [
@@ -19,16 +18,14 @@ class DisplayStatsWidgets extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
-          children: strings
+          children: statsLabel
               .map((item) => Row(
                     children: [
-                      SizedBox(
-                          width: 75,
-                          child: Text(statsLabel[strings.indexOf(item)] + ":")),
+                      SizedBox(width: 75, child: Text(item + ":")),
                       SizedBox(
                           width: 50,
                           child: Text(
-                            "$item",
+                            "${stats[statsLabel.indexOf(item)]}",
                             textAlign: TextAlign.end,
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           )),
@@ -56,11 +53,11 @@ class DisplayStatsWidgets extends StatelessWidget {
                             ),
                           ),
                           child: Slider(
-                            value: item!.toDouble(),
+                            value: stats[statsLabel.indexOf(item)]!.toDouble(),
                             min: 0,
-                            max: statsMax[strings.indexOf(item)],
+                            max: statsMax[statsLabel.indexOf(item)],
                             divisions: 5,
-                            label: "$item",
+                            label: "${stats[statsLabel.indexOf(item)]}",
                             onChanged: (value) {},
                           ),
                         ),

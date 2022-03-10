@@ -175,7 +175,7 @@ class _SearchPokemonPage extends State<SearchPokemonPage> {
                                   ],
                                 ),
                                 DisplayStatsWidgets(
-                                    key: UniqueKey(), strings: poke.stats),
+                                    key: UniqueKey(), stats: poke.stats),
                                 DisplayMovesetWidgets(
                                     key: UniqueKey(), name: poke.name)
                               ],

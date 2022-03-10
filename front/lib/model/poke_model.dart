@@ -1,24 +1,27 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+
 import 'package:intl/intl.Dart';
+import 'package:http/http.dart' as http;
 
 class Poke {
   final String? name;
   final String? sprite;
   final String? icon;
-  final String? icon_small;
+  final String? iconSmall;
   final List<String?> types;
   final List<int?> stats;
-  //final List<String> streets;
+  int? gender;
+  final String? urlSpecies;
 
-  Poke({
-    this.name,
-    this.sprite,
-    this.icon,
-    this.icon_small,
-    required this.types,
-    required this.stats,
-    // this.streets
-  });
+  Poke(
+      {this.name,
+      this.sprite,
+      this.icon,
+      this.iconSmall,
+      required this.types,
+      required this.stats,
+      this.gender,
+      this.urlSpecies});
 
   factory Poke.fromJson(Map<String, dynamic> parsedJson) {
     List<String?> types = [];
@@ -27,14 +30,20 @@ class Poke {
     List<int?> stats = [];
     parsedJson["stats"].forEach((stat) => stats.add(stat["base_stat"]));
     return Poke(
-        name: toBeginningOfSentenceCase(parsedJson["name"] as String?),
-        sprite: parsedJson["sprites"]["other"]["official-artwork"]
-            ["front_default"] as String?,
-        icon: parsedJson["sprites"]["front_default"] as String?,
-        icon_small: parsedJson["sprites"]["versions"]["generation-viii"]
-            ["icons"]["front_default"] as String?,
-        types: types,
-        stats: stats);
+      name: toBeginningOfSentenceCase(parsedJson["name"] as String?),
+      sprite: parsedJson["sprites"]["other"]["official-artwork"]
+          ["front_default"] as String?,
+      icon: parsedJson["sprites"]["front_default"] as String?,
+      iconSmall: parsedJson["sprites"]["versions"]["generation-viii"]["icons"]
+          ["front_default"] as String?,
+      types: types,
+      stats: stats,
+      urlSpecies: parsedJson["species"]["url"],
+    );
+  }
+
+  void addSpecies(Map<String, dynamic> parsedJson) {
+    gender = parsedJson["gender_rate"];
   }
 
   factory Poke.fromnull() {

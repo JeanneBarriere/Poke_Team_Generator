@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:front/config/palette.dart';
 import 'package:front/model/poke_model.dart';
+import 'package:front/model/poke_strat_model.dart';
 import 'package:front/model/pokedex_model.dart';
 import 'package:front/model/team_model.dart';
 import 'package:front/pages/list_team_page.dart';
-import 'package:front/widget/display_icon_small_banner_widget.dart';
-import 'package:front/widget/display_stats_widget.dart';
+import 'package:front/widget/team/display_icon_small_banner_widget.dart';
+import 'package:front/widget/team/display_strat_step_widget.dart';
 import 'package:front/widget/display_types_widget.dart';
 import '../widget/navigation_drawer_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,22 +24,23 @@ class TeamPage extends StatefulWidget {
 
   @override
   State<TeamPage> createState() {
+    // ignore: no_logic_in_create_state, prefer_if_null_operators
     return _NewTeamPage(teamTitle == null ? "" : teamTitle);
   }
 }
 
 class _NewTeamPage extends State<TeamPage> {
-  String _PokeName = "pikachu";
-  List<String> _Pokedex = [];
-  List<String> _Team = [];
-  String _Title = "";
-  String _NewTitle = "";
+  String _pokeName = "pikachu";
+  List<PokeStrat> _team = [];
+  String _title = "";
+  String _newTitle = "";
   bool _update = false;
-  int? _current = null;
+  int? _current;
+  PokeStrat _pokeStrat = PokeStrat.fromName("pikachu");
 
   _NewTeamPage(String teamTitle) {
     if (teamTitle != "" && teamTitle != null) {
-      _Title = teamTitle;
+      _title = teamTitle;
       _getTeamTitle();
     }
   }
@@ -53,11 +55,17 @@ class _NewTeamPage extends State<TeamPage> {
   }
 
   Future<Poke> _dataPokeDetail() async {
-    var response = await http
-        .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/' + _PokeName));
+    var response = await http.get(
+        Uri.parse('https://pokeapi.co/api/v2/pokemon/' + _pokeStrat.name!));
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       Poke poke = Poke.fromJson(jsonResponse);
+      var responseSpecies = await http.get(Uri.parse(poke.urlSpecies!));
+      if (responseSpecies.statusCode == 200) {
+        final jsonResponseSpecies = jsonDecode(responseSpecies.body);
+        poke.addSpecies(jsonResponseSpecies);
+        return poke;
+      }
       return poke;
     } else if (response.statusCode == 404) {
       Poke poke = Poke.fromnull();
@@ -75,7 +83,7 @@ class _NewTeamPage extends State<TeamPage> {
               "Content-Type": "application/json",
               "Authorization": "token " + prefs.getString('token')! ?? ""
             },
-            body: json.encode({'title': _NewTitle, 'team': _Team}));
+            body: json.encode({'title': _newTitle, 'team': _team}));
     if (response.statusCode == 200) {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
@@ -89,7 +97,7 @@ class _NewTeamPage extends State<TeamPage> {
         Uri.parse('http://10.0.2.2:8000/editTeam/?format=json'),
         headers: {"Content-Type": "application/json"},
         body: json
-            .encode({'title': _Title, 'newTitle': _NewTitle, 'team': _Team}));
+            .encode({'title': _title, 'newTitle': _newTitle, 'team': _team}));
     if (response.statusCode == 200) {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
@@ -102,16 +110,16 @@ class _NewTeamPage extends State<TeamPage> {
     var response = await http.post(
         Uri.parse('http://10.0.2.2:8000/getTeamTitle/?format=json'),
         headers: {"Content-Type": "application/json"},
-        body: json.encode({'title': _Title}));
+        body: json.encode({'title': _title}));
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       Team team = Team.fromJson(jsonResponse);
       setState(() {
-        _Team = team.pokemon;
+        // _team = team.pokemon;
         _update = true;
-        _NewTitle = _Title;
+        _newTitle = _title;
       });
-      myController.text = _NewTitle;
+      myController.text = _newTitle;
     } else {
       return Future.error("error");
     }
@@ -122,11 +130,13 @@ class _NewTeamPage extends State<TeamPage> {
       Random random = Random();
       int randomNumber = random.nextInt(901);
       setState(() {
-        _PokeName = randomNumber.toString();
+        _pokeName = randomNumber.toString();
+        _pokeStrat = PokeStrat.fromName(randomNumber.toString());
       });
     } else {
       setState(() {
-        _PokeName = value.toLowerCase();
+        _pokeName = value.toLowerCase();
+        _pokeStrat = PokeStrat.fromName(value.toLowerCase());
       });
     }
   }
@@ -153,7 +163,7 @@ class _NewTeamPage extends State<TeamPage> {
                         child: TextField(
                           controller: myController,
                           onChanged: (value) => setState(() {
-                            _NewTitle = value;
+                            _newTitle = value;
                           }),
                           autofocus: false,
                           style: const TextStyle(color: Color(0xFFFAFAFAf)),
@@ -188,14 +198,15 @@ class _NewTeamPage extends State<TeamPage> {
                   ),
                 ),
                 DisplayIconSmallBannerWidgets(
-                  listPoke: _Team,
+                  listPoke: _team,
                   onPress: (int? newValue) {
                     setState(() {
                       if (newValue != null) {
-                        _current = newValue!;
-                        _PokeName = _Team[newValue];
+                        _current = newValue;
+                        _pokeStrat = _team[newValue];
                       } else {
-                        _PokeName = 'pikachu';
+                        _pokeStrat = PokeStrat.fromName('pikachu');
+                        _pokeName = 'pikachu';
                         _current = null;
                       }
                     });
@@ -226,7 +237,7 @@ class _NewTeamPage extends State<TeamPage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Container(
+                                        SizedBox(
                                           height: 40,
                                           width: 220,
                                           child: Autocomplete(
@@ -268,12 +279,6 @@ class _NewTeamPage extends State<TeamPage> {
                                                           Color(0xFFFAFAFAf)),
                                                   fillColor: Color(0xFF333333f),
                                                   filled: true,
-                                                  // enabledBorder:
-                                                  //     UnderlineInputBorder(
-                                                  //   borderSide: BorderSide(
-                                                  //       color:
-                                                  //           Color(0xFFCF1B1B)),
-                                                  // ),
                                                 ),
                                               );
                                             },
@@ -286,7 +291,7 @@ class _NewTeamPage extends State<TeamPage> {
                                               ? ElevatedButton(
                                                   style:
                                                       ElevatedButton.styleFrom(
-                                                          primary: _Team
+                                                          primary: _team
                                                                       .length <
                                                                   6
                                                               ? Palette.kToDark
@@ -296,9 +301,11 @@ class _NewTeamPage extends State<TeamPage> {
                                                               const Size(
                                                                   100, 38)),
                                                   onPressed: () {
-                                                    if (_Team.length < 6) {
+                                                    if (_team.length < 6) {
                                                       setState(() {
-                                                        _Team.add(_PokeName);
+                                                        _team.add(_pokeStrat);
+                                                        _current =
+                                                            _team.length - 1;
                                                       });
                                                     }
                                                   },
@@ -308,7 +315,7 @@ class _NewTeamPage extends State<TeamPage> {
                                               : ElevatedButton(
                                                   style:
                                                       ElevatedButton.styleFrom(
-                                                          primary: _Team
+                                                          primary: _team
                                                                       .length <
                                                                   6
                                                               ? Palette.kToDark
@@ -318,10 +325,11 @@ class _NewTeamPage extends State<TeamPage> {
                                                               const Size(
                                                                   100, 38)),
                                                   onPressed: () {
-                                                    if (_Team.length < 6) {
+                                                    if (_team.length < 6) {
                                                       setState(() {
-                                                        _Team[_current!] =
-                                                            _PokeName;
+                                                        _team[_current!] =
+                                                            PokeStrat.fromName(
+                                                                _pokeName);
                                                       });
                                                     }
                                                   },
@@ -335,15 +343,15 @@ class _NewTeamPage extends State<TeamPage> {
                                   child: _current != null
                                       ? ElevatedButton(
                                           style: ElevatedButton.styleFrom(
-                                              primary: _Team.length < 6
+                                              primary: _team.length < 6
                                                   ? Palette.kToDark
                                                   : const Color(0xFF727171),
                                               minimumSize: const Size(50, 38)),
                                           onPressed: () {
                                             setState(() {
-                                              _Team.removeAt(_current!);
+                                              _team.removeAt(_current!);
                                               _current = null;
-                                              _PokeName = 'bulbasaur';
+                                              _pokeName = 'bulbasaur';
                                             });
                                           },
                                           child: const Text('Delete'),
@@ -390,8 +398,10 @@ class _NewTeamPage extends State<TeamPage> {
                                         size: 50),
                                   ],
                                 ),
-                                DisplayStatsWidgets(
-                                    key: UniqueKey(), strings: poke.stats),
+                                DisplayStratStepWidgets(
+                                    key: UniqueKey(),
+                                    pokeStrat: _pokeStrat,
+                                    pokeDetails: poke)
                               ],
                             );
                           }

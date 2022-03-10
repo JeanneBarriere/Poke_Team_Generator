@@ -88,7 +88,7 @@ class _PokemonPage extends State<PokemonPage> {
                                   ],
                                 ),
                                 DisplayStatsWidgets(
-                                    key: UniqueKey(), strings: poke.stats),
+                                    key: UniqueKey(), stats: poke.stats),
                                 DisplayMovesetWidgets(
                                     key: UniqueKey(), name: poke.name)
                               ],

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:front/model/poke_strat_model.dart';
 import 'package:front/widget/display_iconsmall_widget.dart';
 
 class DisplayIconSmallBannerWidgets extends StatelessWidget {
-  final List<String?> listPoke;
+  final List<PokeStrat?> listPoke;
 
   const DisplayIconSmallBannerWidgets(
       {Key? key,
@@ -19,8 +20,6 @@ class DisplayIconSmallBannerWidgets extends StatelessWidget {
       var children = <Widget>[];
       if (listPoke != []) {
         for (var poke in listPoke) {
-          print("lenght");
-          print(listPoke);
           children.add(GestureDetector(
             onTap: () async {
               onPress(listPoke.indexOf(poke));
@@ -36,7 +35,7 @@ class DisplayIconSmallBannerWidgets extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
-                child: DisplayIconSmallWidgets(name: poke!.toLowerCase()),
+                child: DisplayIconSmallWidgets(name: poke!.name!.toLowerCase()),
               ),
             ),
           ));

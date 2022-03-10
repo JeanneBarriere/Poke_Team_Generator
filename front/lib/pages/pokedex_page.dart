@@ -248,18 +248,22 @@ class _PokedexPage extends State<PokedexPage> {
                                                                                   width: MediaQuery.of(context).size.width * 0.95,
                                                                                   child: Row(
                                                                                     children: <Widget>[
-                                                                                      Row(
-                                                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                                                        children: [
-                                                                                          Image.network("${poke!.icon}", height: 100, width: 100),
-                                                                                          DisplayTypesWidgets(key: UniqueKey(), strings: poke.types, size: 30),
-                                                                                        ],
-                                                                                      ),
                                                                                       Padding(
                                                                                         padding: const EdgeInsets.all(5.0),
-                                                                                        child: Text(
-                                                                                          "${poke.name}",
-                                                                                          style: Theme.of(context).textTheme.headline3,
+                                                                                        child: Image.network("${poke!.icon}"),
+                                                                                      ),
+                                                                                      DisplayTypesWidgets(key: UniqueKey(), strings: poke.types, size: 30),
+                                                                                      Flexible(
+                                                                                        child: FittedBox(
+                                                                                          fit: BoxFit.scaleDown,
+                                                                                          child: Padding(
+                                                                                            padding: const EdgeInsets.all(8.0),
+                                                                                            child: Text(
+                                                                                              "${poke.name}",
+                                                                                              maxLines: 1,
+                                                                                              style: Theme.of(context).textTheme.headline3,
+                                                                                            ),
+                                                                                          ),
                                                                                         ),
                                                                                       ),
                                                                                     ],
