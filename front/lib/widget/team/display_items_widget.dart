@@ -63,7 +63,6 @@ class _DisplayItemWidgetsState extends State<DisplayItemWidgets> {
     var responseApi = await http.get(Uri.parse(item.url!));
     final jsonResponseApiUrl = jsonDecode(responseApi.body);
     item.addSprites(jsonResponseApiUrl);
-
     return item;
   }
 
@@ -165,6 +164,7 @@ class _DisplayItemWidgetsState extends State<DisplayItemWidgets> {
                                 setState(() {
                                   _item = value;
                                 }),
+                                _getItem(value.name),
                                 widget.poke.item = value.name
                               },
                               optionsViewBuilder: (context,

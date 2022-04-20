@@ -25,7 +25,9 @@ class Item {
   void addUrlFromJSon(Map<String, dynamic> jsonResponseApi) {
     String url = "https://pokeapi.co/api/v2/item/4/";
     jsonResponseApi["results"].forEach((element) => {
-          if (element["name"] == name.toLowerCase()) {url = element['url']}
+          if (element["name"] == name.toLowerCase() ||
+              element["name"].replaceAll("-", " ") == name.toLowerCase())
+            {url = element['url']}
         });
     this.url = url;
   }
