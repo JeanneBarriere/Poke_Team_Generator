@@ -34,7 +34,7 @@ class DisplayIconSmallWidgets extends StatelessWidget {
               Poke? poke = snapshot.data;
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
-                  return const Center(child: DisplayLoader());
+                  return const Center(child: DisplayLoader(size: 50));
                 case ConnectionState.done:
                   if (snapshot.hasError) {
                     return Text(
@@ -46,7 +46,7 @@ class DisplayIconSmallWidgets extends StatelessWidget {
                       children: [
                         Container(
                             decoration: const BoxDecoration(
-                                color: const Color(0xFF343442),
+                                color: Color(0xFF343442),
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(100))),
                             child: Padding(

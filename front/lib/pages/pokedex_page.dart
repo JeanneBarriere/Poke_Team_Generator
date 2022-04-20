@@ -83,7 +83,7 @@ class _PokedexPage extends State<PokedexPage> {
   @override
   StatefulWidget build(BuildContext context) {
     return Scaffold(
-      drawer: NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget(),
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -131,7 +131,8 @@ class _PokedexPage extends State<PokedexPage> {
                             Pokedex? pokedex = snapshot.data;
                             switch (snapshot.connectionState) {
                               case ConnectionState.waiting:
-                                return const Center(child: DisplayLoader());
+                                return const Center(
+                                    child: DisplayLoader(size: 40));
                               case ConnectionState.done:
                                 if (snapshot.hasError) {
                                   return Text(
@@ -211,7 +212,9 @@ class _PokedexPage extends State<PokedexPage> {
                                                                           mainAxisAlignment:
                                                                               MainAxisAlignment.center,
                                                                           children: const [
-                                                                            DisplayLoader(),
+                                                                            DisplayLoader(
+                                                                              size: 40,
+                                                                            ),
                                                                           ],
                                                                         ),
                                                                       ),

@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class PokeStrat {
   String? name;
   String? nickName;

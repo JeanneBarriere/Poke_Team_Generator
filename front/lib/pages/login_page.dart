@@ -42,7 +42,7 @@ class _LoginPage extends State<LoginPage> {
   @override
   StatefulWidget build(BuildContext context) {
     return Scaffold(
-      drawer: NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget(),
       appBar: AppBar(
         title: Text(widget.title),
       ),

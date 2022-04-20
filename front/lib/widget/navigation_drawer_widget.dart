@@ -10,7 +10,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'display_loader.dart';
 
 class NavigationDrawerWidget extends StatelessWidget {
-  final padding = EdgeInsets.symmetric(horizontal: 20);
+  final padding = const EdgeInsets.symmetric(horizontal: 20);
+
+  const NavigationDrawerWidget({Key? key}) : super(key: key);
 
   Future<SharedPreferences> _token() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -29,7 +31,7 @@ class NavigationDrawerWidget extends StatelessWidget {
               SharedPreferences? prefs = snapshot.data;
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
-                  return const Center(child: DisplayLoader());
+                  return const Center(child: DisplayLoader(size: 40));
                 case ConnectionState.done:
                   if (snapshot.hasError) {
                     return Text(
@@ -99,16 +101,12 @@ class NavigationDrawerWidget extends StatelessWidget {
                       ],
                     );
                   }
-                case ConnectionState.none:
-                  // TODO: Handle this case.
-                  break;
-                case ConnectionState.active:
-                  // TODO: Handle this case.
-                  break;
+                default:
+                  const Text('');
               }
 
               return ListView(
-                children: <Widget>[],
+                children: const <Widget>[],
               );
             }),
       ),

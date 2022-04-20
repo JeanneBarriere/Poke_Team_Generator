@@ -27,7 +27,7 @@ class _RegisterPage extends State<RegisterPage> {
         headers: {"Content-Type": "application/json"},
         body: json.encode({'username': _username, 'password': _password}));
     if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
+      // final jsonResponse = jsonDecode(response.body);
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => LoginPage(key: UniqueKey(), title: 'Login')));
     }
@@ -37,7 +37,7 @@ class _RegisterPage extends State<RegisterPage> {
   @override
   StatefulWidget build(BuildContext context) {
     return Scaffold(
-      drawer: NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget(),
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -52,9 +52,7 @@ class _RegisterPage extends State<RegisterPage> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Username',
-                      // ignore: use_full_hex_values_for_flutter_colors
                       labelStyle: TextStyle(color: Color(0xFFFAFAFAf)),
-                      // ignore: use_full_hex_values_for_flutter_colors
                       fillColor: Color(0xFF333333f),
                       filled: true,
                       enabledBorder: UnderlineInputBorder(

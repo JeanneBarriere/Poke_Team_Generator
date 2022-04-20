@@ -1,3 +1,5 @@
+// ignore_for_file: use_full_hex_values_for_flutter_colors
+
 import 'package:flutter/material.dart';
 import 'package:front/config/palette.dart';
 import 'package:front/model/natures_model.dart';
@@ -26,7 +28,7 @@ class TeamPage extends StatefulWidget {
 
   @override
   State<TeamPage> createState() {
-    // ignore: no_logic_in_create_state, prefer_if_null_operators
+    // ignore: no_logic_in_create_state, prefer_if_null_operators, unnecessary_null_comparison
     return _NewTeamPage(teamTitle == null ? "" : teamTitle);
   }
 }
@@ -41,6 +43,7 @@ class _NewTeamPage extends State<TeamPage> {
   PokeStrat _pokeStrat = PokeStrat.fromName("pikachu");
 
   _NewTeamPage(String teamTitle) {
+    // ignore: unnecessary_null_comparison
     if (teamTitle != null && teamTitle != "") {
       _title = teamTitle;
       _getTeamTitle();
@@ -87,7 +90,7 @@ class _NewTeamPage extends State<TeamPage> {
         await http.post(Uri.parse('http://10.0.2.2:8000/addTeam/?format=json'),
             headers: {
               "Content-Type": "application/json",
-              "Authorization": "token " + prefs.getString('token')! ?? ""
+              "Authorization": "token " + prefs.getString('token')!
             },
             body: json.encode({
               'title': _newTitle,
@@ -176,7 +179,7 @@ class _NewTeamPage extends State<TeamPage> {
   @override
   StatefulWidget build(BuildContext context) {
     return Scaffold(
-      drawer: NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget(),
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -403,7 +406,7 @@ class _NewTeamPage extends State<TeamPage> {
                       Poke? poke = snapshot.data;
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(child: DisplayLoader());
+                          return const Center(child: DisplayLoader(size: 40));
                         case ConnectionState.done:
                           if (snapshot.hasError) {
                             return Text(
@@ -419,7 +422,7 @@ class _NewTeamPage extends State<TeamPage> {
                                   switch (snapshot.connectionState) {
                                     case ConnectionState.waiting:
                                       return const Center(
-                                          child: DisplayLoader());
+                                          child: DisplayLoader(size: 40));
                                     case ConnectionState.done:
                                       if (snapshot.hasError) {
                                         return Text(

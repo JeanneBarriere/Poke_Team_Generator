@@ -1,14 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:front/model/natures_model.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:front/model/poke_strat_model.dart';
 import 'package:front/widget/team/display_items_widget.dart';
-import 'package:front/widget/display_loader.dart';
 import 'package:front/widget/team/display_moves_strat_widget.dart';
-import 'package:http/http.dart' as http;
 
 import 'display_details_strat_widget.dart';
 import 'display_stats_strat_widget.dart';
@@ -82,7 +78,7 @@ class _DisplayStratStepWidgetsState extends State<DisplayStratStepWidgets> {
                 baseStat: _pokeDetails!.stats,
                 poke: _pokeStrat!,
                 level: _level,
-                natures: widget.natures!),
+                natures: widget.natures),
             headerBuilder: (BuildContext context, bool isExpanded) {
               return ListTile(
                 title: Text(

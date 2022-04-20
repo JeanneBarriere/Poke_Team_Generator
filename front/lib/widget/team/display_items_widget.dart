@@ -1,3 +1,5 @@
+// ignore_for_file: use_full_hex_values_for_flutter_colors
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -15,6 +17,7 @@ class DisplayItemWidgets extends StatefulWidget {
   const DisplayItemWidgets({Key? key, required this.poke}) : super(key: key);
 
   @override
+  // ignore: no_logic_in_create_state
   State<DisplayItemWidgets> createState() => _DisplayItemWidgetsState(poke);
 }
 
@@ -83,7 +86,8 @@ class _DisplayItemWidgetsState extends State<DisplayItemWidgets> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(minHeight: 500, minWidth: double.infinity),
+      constraints:
+          const BoxConstraints(minHeight: 500, minWidth: double.infinity),
       child: Padding(
           padding: const EdgeInsets.all(10.0),
           child: FutureBuilder<Items>(
@@ -92,7 +96,7 @@ class _DisplayItemWidgetsState extends State<DisplayItemWidgets> {
                 Items? items = snapshot.data;
                 switch (snapshot.connectionState) {
                   case ConnectionState.waiting:
-                    return const Center(child: DisplayLoader());
+                    return const Center(child: DisplayLoader(size: 40));
                   case ConnectionState.done:
                     if (snapshot.hasError) {
                       return Text(
@@ -121,7 +125,8 @@ class _DisplayItemWidgetsState extends State<DisplayItemWidgets> {
                                           switch (snapshot.connectionState) {
                                             case ConnectionState.waiting:
                                               return const Center(
-                                                  child: DisplayLoader());
+                                                  child:
+                                                      DisplayLoader(size: 40));
                                             case ConnectionState.done:
                                               if (snapshot.hasError) {
                                                 return Text(
@@ -149,8 +154,9 @@ class _DisplayItemWidgetsState extends State<DisplayItemWidgets> {
                                   return option.name.toLowerCase().contains(
                                       textEditingValue.text.toLowerCase());
                                 }).toList();
-                                if (listItems.length > 3)
+                                if (listItems.length > 3) {
                                   return listItems.sublist(0, 3);
+                                }
                                 return listItems;
                               },
                               displayStringForOption: (Item option) =>
@@ -186,14 +192,14 @@ class _DisplayItemWidgetsState extends State<DisplayItemWidgets> {
                                                       (BuildContext context,
                                                           AsyncSnapshot<Item>
                                                               snapshot) {
-                                                    Item? item = snapshot.data;
                                                     switch (snapshot
                                                         .connectionState) {
                                                       case ConnectionState
                                                           .waiting:
                                                         return const Center(
                                                             child:
-                                                                DisplayLoader());
+                                                                DisplayLoader(
+                                                                    size: 40));
                                                       case ConnectionState.done:
                                                         if (snapshot.hasError) {
                                                           return Text(
@@ -232,7 +238,7 @@ class _DisplayItemWidgetsState extends State<DisplayItemWidgets> {
                                                         }
 
                                                       default:
-                                                        return Text("");
+                                                        return const Text("");
                                                     }
                                                   }));
                                         },

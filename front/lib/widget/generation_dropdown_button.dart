@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:front/config/palette.dart';
 
 class GenerationDropDownButton extends StatelessWidget {
+  // ignore: use_key_in_widget_constructors
   const GenerationDropDownButton(
       {Key? key, required this.index, required this.onPress});
 
@@ -26,7 +27,7 @@ class GenerationDropDownButton extends StatelessWidget {
             height: 1.5,
             color: Palette.kToDark.shade400,
           ),
-          onChanged: this.onPress,
+          onChanged: onPress,
           items: <String>[
             'Generation 1',
             'Generation 2',

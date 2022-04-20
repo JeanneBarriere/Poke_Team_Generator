@@ -24,7 +24,6 @@ class SearchPokemonPage extends StatefulWidget {
 
 class _SearchPokemonPage extends State<SearchPokemonPage> {
   String _pokeName = "pikachu";
-  final List<String> _pokedex = [];
 
   Future<Pokedex> _dataPokedex() async {
     var response = await http
@@ -66,7 +65,7 @@ class _SearchPokemonPage extends State<SearchPokemonPage> {
   @override
   StatefulWidget build(BuildContext context) {
     return Scaffold(
-      drawer: NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget(),
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -82,7 +81,7 @@ class _SearchPokemonPage extends State<SearchPokemonPage> {
                       Pokedex? pokedex = snapshot.data;
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(child: DisplayLoader());
+                          return const Center(child: DisplayLoader(size: 40));
                         case ConnectionState.done:
                           if (snapshot.hasError) {
                             return Text(
@@ -149,7 +148,7 @@ class _SearchPokemonPage extends State<SearchPokemonPage> {
                       Poke? poke = snapshot.data;
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(child: DisplayLoader());
+                          return const Center(child: DisplayLoader(size: 40));
                         case ConnectionState.done:
                           if (snapshot.hasError) {
                             return Text(

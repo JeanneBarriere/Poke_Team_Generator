@@ -149,7 +149,7 @@ class _DisplayStatsStratWidgetsState extends State<DisplayStatsStratWidgets> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Ability : ",
+                "Nature : ",
                 style: TextStyle(color: Colors.white70),
               ),
               Padding(
@@ -158,30 +158,53 @@ class _DisplayStatsStratWidgetsState extends State<DisplayStatsStratWidgets> {
                   data: Theme.of(context).copyWith(
                     canvasColor: Palette.kToDark.shade400,
                   ),
-                  child: DropdownButton<Nature>(
-                    value: _nature,
-                    icon: const Icon(Icons.arrow_drop_down_outlined,
-                        color: Color(0xff733024)),
-                    elevation: 0,
-                    style: const TextStyle(),
-                    underline: Container(
-                      height: 1.5,
-                      color: Palette.kToDark.shade400,
+                  child: SizedBox(
+                    height: 60.0,
+                    width: 270.0,
+                    child: DropdownButton<Nature>(
+                      value: _nature,
+                      icon: const Icon(Icons.arrow_drop_down_outlined,
+                          color: Color(0xff733024)),
+                      elevation: 0,
+                      isExpanded: true,
+                      style: const TextStyle(),
+                      underline: Container(
+                        height: 1.5,
+                        color: Palette.kToDark.shade400,
+                      ),
+                      onChanged: (newValue) => {
+                        setState(() => {
+                              _poke!.nature = newValue!.name,
+                              _nature = newValue
+                            })
+                      },
+                      items: widget.natures.natures!
+                          .map<DropdownMenuItem<Nature>>((Nature value) {
+                        return DropdownMenuItem<Nature>(
+                          value: value,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(toBeginningOfSentenceCase(value.name)
+                                    as String),
+                                value.increasedStat != ''
+                                    ? Text("+ " +
+                                        value.increasedStat! +
+                                        " / - " +
+                                        value.decreasedStat!)
+                                    : const Text("",
+                                        style: TextStyle(height: 0)),
+                                // value.increasedStat != ""
+                                //     ? Text("- " + value.decreasedStat!)
+                                //     : Text("", style: TextStyle(height: 0)),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     ),
-                    onChanged: (newValue) => {
-                      setState(() =>
-                          {_poke!.nature = newValue!.name, _nature = newValue})
-                    },
-                    items: widget.natures.natures!
-                        .map<DropdownMenuItem<Nature>>((Nature value) {
-                      return DropdownMenuItem<Nature>(
-                        value: value,
-                        child: Text(
-                            toBeginningOfSentenceCase(value.name) as String),
-                        // Text("+" + value.increasedStat!),
-                        // Text("-" + value.decreasedStat!),
-                      );
-                    }).toList(),
                   ),
                 ),
               ),

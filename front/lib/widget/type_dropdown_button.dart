@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:front/config/palette.dart';
 
 class TypeDropDownButton extends StatelessWidget {
+  // ignore: use_key_in_widget_constructors
   const TypeDropDownButton(
       {Key? key, required this.index, required this.onPress});
 
@@ -26,7 +27,7 @@ class TypeDropDownButton extends StatelessWidget {
             height: 1.5,
             color: Palette.kToDark.shade400,
           ),
-          onChanged: this.onPress,
+          onChanged: onPress,
           items: <String>[
             "Type",
             "Bug",

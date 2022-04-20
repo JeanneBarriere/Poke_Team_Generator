@@ -34,7 +34,7 @@ class _DisplayMovesetWidgetsState extends State<DisplayMovesetWidgets> {
               Movepool? pokedex = snapshot.data;
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
-                  return const Center(child: DisplayLoader());
+                  return const Center(child: DisplayLoader(size: 40));
                 case ConnectionState.done:
                   if (snapshot.hasError) {
                     return Text(

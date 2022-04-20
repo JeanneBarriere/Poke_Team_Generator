@@ -35,7 +35,7 @@ class _DisplayDetailsStratWidgetsState
 
   _DisplayDetailsStratWidgetsState(PokeStrat poke, int gender, String ability) {
     _poke = poke;
-    if (poke!.ability == "") {
+    if (poke.ability == "") {
       _poke!.ability = ability;
     }
     _genderChoice = defineGender(gender);

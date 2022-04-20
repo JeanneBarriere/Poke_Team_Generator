@@ -1,4 +1,3 @@
-import 'package:front/model/poke_model.dart';
 import 'package:front/model/poke_strat_model.dart';
 
 class Team {

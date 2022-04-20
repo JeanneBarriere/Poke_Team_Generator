@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:front/config/palette.dart';
 
 class AbilitiesDropDownButton extends StatefulWidget {
+  // ignore: use_key_in_widget_constructors
   const AbilitiesDropDownButton(
       {Key? key,
       required this.index,
@@ -14,6 +15,7 @@ class AbilitiesDropDownButton extends StatefulWidget {
 
   @override
   State<AbilitiesDropDownButton> createState() =>
+      // ignore: no_logic_in_create_state
       _AbilitiesDropDownButtonState(index);
 }
 
@@ -40,7 +42,7 @@ class _AbilitiesDropDownButtonState extends State<AbilitiesDropDownButton> {
             height: 1.5,
             color: Palette.kToDark.shade400,
           ),
-          onChanged: this.widget.onPress,
+          onChanged: widget.onPress,
           items: widget.abilities.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,

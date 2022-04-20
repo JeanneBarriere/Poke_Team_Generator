@@ -22,7 +22,7 @@ class _TeamListPage extends State<TeamListPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var response = await http.get(
         Uri.parse('http://10.0.2.2:8000/getTeams/?format=json'),
-        headers: {"Authorization": "token " + prefs.getString('token')! ?? ""});
+        headers: {"Authorization": "token " + prefs.getString('token')!});
 
     final jsonResponse = jsonDecode(response.body);
     TeamList teamList = TeamList.fromJson(jsonResponse);
@@ -32,7 +32,7 @@ class _TeamListPage extends State<TeamListPage> {
   @override
   StatefulWidget build(BuildContext context) {
     return Scaffold(
-      drawer: NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget(),
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -51,7 +51,8 @@ class _TeamListPage extends State<TeamListPage> {
                             TeamList? teamList = snapshot.data;
                             switch (snapshot.connectionState) {
                               case ConnectionState.waiting:
-                                return const Center(child: DisplayLoader());
+                                return const Center(
+                                    child: DisplayLoader(size: 40));
                               case ConnectionState.done:
                                 if (snapshot.hasError) {
                                   return Text(
@@ -140,7 +141,7 @@ class _TeamListPage extends State<TeamListPage> {
                                                                               5.0),
                                                                       child:
                                                                           Text(
-                                                                        "${item}",
+                                                                        "$item",
                                                                         style: Theme.of(context)
                                                                             .textTheme
                                                                             .headline3,

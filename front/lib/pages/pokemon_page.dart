@@ -45,7 +45,7 @@ class _PokemonPage extends State<PokemonPage> {
   @override
   StatefulWidget build(BuildContext context) {
     return Scaffold(
-      drawer: NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget(),
       appBar: AppBar(
         title: Text(widget.title!),
       ),
@@ -61,7 +61,7 @@ class _PokemonPage extends State<PokemonPage> {
                       Poke? poke = snapshot.data;
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(child: DisplayLoader());
+                          return const Center(child: DisplayLoader(size: 40));
                         case ConnectionState.done:
                           if (snapshot.hasError) {
                             return Text(
