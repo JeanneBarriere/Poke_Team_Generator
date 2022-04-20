@@ -1,6 +1,9 @@
+// ignore_for_file: use_full_hex_values_for_flutter_colors
+
 import 'package:flutter/material.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:front/model/pokedex_model.dart';
+import 'package:front/widget/display_loader.dart';
 import 'package:front/widget/display_moveset_widget.dart';
 import 'package:front/widget/display_stats_widget.dart';
 import 'package:front/widget/display_types_widget.dart';
@@ -20,9 +23,8 @@ class SearchPokemonPage extends StatefulWidget {
 }
 
 class _SearchPokemonPage extends State<SearchPokemonPage> {
-  @override
-  String _PokeName = "pikachu";
-  List<String> _Pokedex = [];
+  String _pokeName = "pikachu";
+  final List<String> _pokedex = [];
 
   Future<Pokedex> _dataPokedex() async {
     var response = await http
@@ -35,7 +37,7 @@ class _SearchPokemonPage extends State<SearchPokemonPage> {
 
   Future<Poke> _dataPoke() async {
     var response = await http
-        .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/' + _PokeName));
+        .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/' + _pokeName));
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       Poke poke = Poke.fromJson(jsonResponse);
@@ -52,11 +54,11 @@ class _SearchPokemonPage extends State<SearchPokemonPage> {
       Random random = Random();
       int randomNumber = random.nextInt(901);
       setState(() {
-        _PokeName = randomNumber.toString();
+        _pokeName = randomNumber.toString();
       });
     } else {
       setState(() {
-        _PokeName = value.toLowerCase();
+        _pokeName = value.toLowerCase();
       });
     }
   }
@@ -80,8 +82,7 @@ class _SearchPokemonPage extends State<SearchPokemonPage> {
                       Pokedex? pokedex = snapshot.data;
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(
-                              child: CircularProgressIndicator());
+                          return const Center(child: DisplayLoader());
                         case ConnectionState.done:
                           if (snapshot.hasError) {
                             return Text(
@@ -92,7 +93,7 @@ class _SearchPokemonPage extends State<SearchPokemonPage> {
                             return Column(
                               children: <Widget>[
                                 Padding(
-                                    padding: EdgeInsets.all(8.0),
+                                    padding: const EdgeInsets.all(8.0),
                                     child: Autocomplete(
                                       optionsBuilder:
                                           (TextEditingValue textEditingValue) {
@@ -148,8 +149,7 @@ class _SearchPokemonPage extends State<SearchPokemonPage> {
                       Poke? poke = snapshot.data;
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(
-                              child: CircularProgressIndicator());
+                          return const Center(child: DisplayLoader());
                         case ConnectionState.done:
                           if (snapshot.hasError) {
                             return Text(

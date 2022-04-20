@@ -1,27 +1,28 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:front/model/move_model.dart';
-import 'package:intl/intl.dart';
-
 import 'display_types_widget.dart';
 
-class DisplayMoveWidgets extends StatelessWidget {
+class DisplayMoveWidgets extends StatefulWidget {
   final String? label;
+  final double width;
 
+  const DisplayMoveWidgets({Key? key, required this.label, required this.width})
+      : super(key: key);
+
+  @override
+  State<DisplayMoveWidgets> createState() => _DisplayMoveWidgetsState();
+}
+
+class _DisplayMoveWidgetsState extends State<DisplayMoveWidgets> {
   Future<Move> _dataMove() async {
     final response = await rootBundle.loadString('assets/json/moves.json');
     final jsonResponse = json.decode(response);
-    Move move = Move.fromJson(jsonResponse, label);
+    Move move = Move.fromJson(jsonResponse, widget.label);
     return move;
   }
 
-  // _toUpperCase(value) {
-  //   return toBeginningOfSentenceCase(value);
-  // }
-
-  const DisplayMoveWidgets({Key? key, required this.label}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -75,7 +76,7 @@ class DisplayMoveWidgets extends StatelessWidget {
                       ),
                       child: Container(
                         padding: const EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width * 0.90,
+                        width: MediaQuery.of(context).size.width * widget.width,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0),
                           color: const Color(0xFF343442),

@@ -5,17 +5,25 @@ import 'package:flutter/services.dart';
 import 'package:front/model/movepool_model.dart';
 import 'package:front/widget/display_move_widget.dart';
 
-class DisplayMovesetWidgets extends StatelessWidget {
+import 'display_loader.dart';
+
+class DisplayMovesetWidgets extends StatefulWidget {
   final String? name;
 
+  const DisplayMovesetWidgets({Key? key, required this.name}) : super(key: key);
+
+  @override
+  State<DisplayMovesetWidgets> createState() => _DisplayMovesetWidgetsState();
+}
+
+class _DisplayMovesetWidgetsState extends State<DisplayMovesetWidgets> {
   Future<Movepool> _dataMovepool() async {
     final response = await rootBundle.loadString('assets/json/movesLearn.json');
     final jsonResponse = json.decode(response);
-    Movepool movepool = Movepool.fromJson(jsonResponse, name);
+    Movepool movepool = Movepool.fromJson(jsonResponse, widget.name);
     return movepool;
   }
 
-  const DisplayMovesetWidgets({Key? key, required this.name}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -26,7 +34,7 @@ class DisplayMovesetWidgets extends StatelessWidget {
               Movepool? pokedex = snapshot.data;
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: DisplayLoader());
                 case ConnectionState.done:
                   if (snapshot.hasError) {
                     return Text(
@@ -55,6 +63,7 @@ class DisplayMovesetWidgets extends StatelessWidget {
                                               DisplayMoveWidgets(
                                                 key: UniqueKey(),
                                                 label: item,
+                                                width: 0.90,
                                               ),
                                             ],
                                           ))

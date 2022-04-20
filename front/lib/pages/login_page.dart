@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:front/model/poke_model.dart';
-import 'package:front/model/pokedex_model.dart';
-import 'package:front/widget/display_moveset_widget.dart';
-import 'package:front/widget/display_stats_widget.dart';
-import 'package:front/widget/display_types_widget.dart';
-import 'package:front/config/palette.dart';
 import '../widget/navigation_drawer_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
@@ -24,17 +18,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPage extends State<LoginPage> {
-  @override
-  String _Username = "";
-  String _Password = "";
+  String _username = "";
+  String _password = "";
 
   Future<Poke> _login() async {
     var response = await http.post(
         Uri.parse('http://10.0.2.2:8000/api-token-auth/?format=json'),
         headers: {"Content-Type": "application/json"},
-        body: json.encode({'username': _Username, 'password': _Password}));
+        body: json.encode({'username': _username, 'password': _password}));
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
+      // ignore: invalid_use_of_visible_for_testing_member
       SharedPreferences.setMockInitialValues({});
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', jsonResponse["token"]);
@@ -63,7 +57,9 @@ class _LoginPage extends State<LoginPage> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Username',
+                      // ignore: use_full_hex_values_for_flutter_colors
                       labelStyle: TextStyle(color: Color(0xFFFAFAFAf)),
+                      // ignore: use_full_hex_values_for_flutter_colors
                       fillColor: Color(0xFF333333f),
                       filled: true,
                       enabledBorder: UnderlineInputBorder(
@@ -71,7 +67,7 @@ class _LoginPage extends State<LoginPage> {
                       ),
                     ),
                     onChanged: (String value) => setState(() {
-                      _Username = value;
+                      _username = value;
                     }),
                   ),
                 ),
@@ -84,15 +80,17 @@ class _LoginPage extends State<LoginPage> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Password',
+                      // ignore: use_full_hex_values_for_flutter_colors
                       labelStyle: TextStyle(color: Color(0xFFFAFAFAf)),
-                      fillColor: Color(0xFF333333f),
+                      // ignore: use_full_hex_values_for_flutter_colors
+                      fillColor: Color(0xff333333f),
                       filled: true,
                       enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(color: Color(0xFFCF1B1B)),
                       ),
                     ),
                     onChanged: (String value) => setState(() {
-                      _Password = value;
+                      _password = value;
                     }),
                   ),
                 ),

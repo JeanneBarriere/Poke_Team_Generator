@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:front/model/poke_model.dart';
+import 'package:front/widget/display_loader.dart';
 import 'package:front/widget/display_moveset_widget.dart';
 import 'package:front/widget/display_stats_widget.dart';
 import 'package:front/widget/display_types_widget.dart';
@@ -16,20 +17,20 @@ class PokemonPage extends StatefulWidget {
   final String? name;
 
   @override
+  // ignore: no_logic_in_create_state
   State<PokemonPage> createState() => _PokemonPage(name!);
 }
 
 class _PokemonPage extends State<PokemonPage> {
-  @override
-  String? _PokeName;
+  String? _pokeName;
 
   _PokemonPage(String name) {
-    this._PokeName = name.toLowerCase();
+    _pokeName = name.toLowerCase();
   }
 
   Future<Poke> _dataPoke() async {
     var response = await http
-        .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/' + _PokeName!));
+        .get(Uri.parse('https://pokeapi.co/api/v2/pokemon/' + _pokeName!));
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       Poke poke = Poke.fromJson(jsonResponse);
@@ -60,8 +61,7 @@ class _PokemonPage extends State<PokemonPage> {
                       Poke? poke = snapshot.data;
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(
-                              child: CircularProgressIndicator());
+                          return const Center(child: DisplayLoader());
                         case ConnectionState.done:
                           if (snapshot.hasError) {
                             return Text(

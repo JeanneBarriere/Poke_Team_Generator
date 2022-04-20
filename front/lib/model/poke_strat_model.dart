@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 class PokeStrat {
   String? name;
   String? nickName;
@@ -25,7 +27,22 @@ class PokeStrat {
       this.moves});
 
   factory PokeStrat.fromJson(Map<String, dynamic> parsedJson) {
-    return PokeStrat();
+    // List<String> moves =[];
+    // parsedJson['moves']!.for (var item in items) {
+
+    // }
+    return PokeStrat(
+        name: parsedJson['name'],
+        nickName: parsedJson['nickName'],
+        shiny: parsedJson['shiny'].toString() == "true",
+        gender: parsedJson['gender'],
+        item: parsedJson['item'],
+        ability: parsedJson['ability'],
+        level: parsedJson['level'],
+        evs: parsedJson['evs'].cast<double>(),
+        nature: (parsedJson['nature']),
+        ivs: parsedJson['ivs'].cast<double>(),
+        moves: parsedJson['moves'].cast<String>());
   }
 
   factory PokeStrat.fromName(String name) {
@@ -33,13 +50,29 @@ class PokeStrat {
         name: name,
         nickName: "",
         shiny: false,
-        gender: "random",
+        gender: "",
         item: "",
         ability: "",
         level: 50,
         evs: [0, 0, 0, 0, 0, 0],
         nature: "",
         ivs: [31, 31, 31, 31, 31, 31],
-        moves: ["", "", "", ""]);
+        moves: []);
+  }
+
+  Map toJson() {
+    return {
+      "name": name,
+      "nickName": nickName,
+      "shiny": shiny,
+      "gender": gender,
+      "item": item,
+      "ability": ability,
+      "level": level,
+      "evs": evs,
+      "nature": nature,
+      "ivs": ivs,
+      "moves": moves
+    };
   }
 }

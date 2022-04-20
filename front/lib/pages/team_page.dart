@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:front/config/palette.dart';
+import 'package:front/model/natures_model.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:front/model/poke_strat_model.dart';
 import 'package:front/model/pokedex_model.dart';
 import 'package:front/model/team_model.dart';
 import 'package:front/pages/list_team_page.dart';
+import 'package:front/widget/display_loader.dart';
 import 'package:front/widget/team/display_icon_small_banner_widget.dart';
 import 'package:front/widget/team/display_strat_step_widget.dart';
 import 'package:front/widget/display_types_widget.dart';
@@ -39,7 +41,7 @@ class _NewTeamPage extends State<TeamPage> {
   PokeStrat _pokeStrat = PokeStrat.fromName("pikachu");
 
   _NewTeamPage(String teamTitle) {
-    if (teamTitle != "" && teamTitle != null) {
+    if (teamTitle != null && teamTitle != "") {
       _title = teamTitle;
       _getTeamTitle();
     }
@@ -74,6 +76,10 @@ class _NewTeamPage extends State<TeamPage> {
     return Future.error("error");
   }
 
+  List teamToJson() {
+    return _team.map((poke) => (poke.toJson())).toList();
+  }
+
   Future<Poke> _addTeam() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -83,7 +89,10 @@ class _NewTeamPage extends State<TeamPage> {
               "Content-Type": "application/json",
               "Authorization": "token " + prefs.getString('token')! ?? ""
             },
-            body: json.encode({'title': _newTitle, 'team': _team}));
+            body: json.encode({
+              'title': _newTitle,
+              'team': teamToJson(),
+            }));
     if (response.statusCode == 200) {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
@@ -96,8 +105,8 @@ class _NewTeamPage extends State<TeamPage> {
     var response = await http.post(
         Uri.parse('http://10.0.2.2:8000/editTeam/?format=json'),
         headers: {"Content-Type": "application/json"},
-        body: json
-            .encode({'title': _title, 'newTitle': _newTitle, 'team': _team}));
+        body: json.encode(
+            {'title': _title, 'newTitle': _newTitle, 'team': teamToJson()}));
     if (response.statusCode == 200) {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
@@ -118,11 +127,32 @@ class _NewTeamPage extends State<TeamPage> {
         // _team = team.pokemon;
         _update = true;
         _newTitle = _title;
+        _team = team.pokemon;
+        if (team.pokemon.isNotEmpty) {
+          _pokeStrat = team.pokemon[0];
+          _current = 0;
+        }
       });
       myController.text = _newTitle;
     } else {
       return Future.error("error");
     }
+  }
+
+  Future<Natures> _dataNature() async {
+    var response =
+        await http.get(Uri.parse('https://pokeapi.co/api/v2/nature/'));
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      Natures natures = Natures.fromJson(jsonResponse);
+      for (var nature in natures.natures!) {
+        var responseNature = await http.get(Uri.parse(nature.url));
+        final jsonNatures = jsonDecode(responseNature.body);
+        nature.addDetails(jsonNatures);
+      }
+      return natures;
+    }
+    return Future.error("error");
   }
 
   _displayPoke(value) {
@@ -166,12 +196,12 @@ class _NewTeamPage extends State<TeamPage> {
                             _newTitle = value;
                           }),
                           autofocus: false,
-                          style: const TextStyle(color: Color(0xFFFAFAFAf)),
+                          style: const TextStyle(color: Color(0xfffafafaf)),
                           decoration: const InputDecoration(
                             border: OutlineInputBorder(),
                             labelText: 'Title of Team',
-                            labelStyle: TextStyle(color: Color(0xFFFAFAFAf)),
-                            fillColor: Color(0xFF333333f),
+                            labelStyle: TextStyle(color: Color(0xfffafafaf)),
+                            fillColor: Color(0xff333333f),
                             filled: true,
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Color(0xFFCF1B1B)),
@@ -220,8 +250,7 @@ class _NewTeamPage extends State<TeamPage> {
                       Pokedex? pokedex = snapshot.data;
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(
-                              child: CircularProgressIndicator());
+                          return const Center();
                         case ConnectionState.done:
                           if (snapshot.hasError) {
                             return Text(
@@ -351,6 +380,8 @@ class _NewTeamPage extends State<TeamPage> {
                                             setState(() {
                                               _team.removeAt(_current!);
                                               _current = null;
+                                              _pokeStrat = PokeStrat.fromName(
+                                                  'bulbasaur');
                                               _pokeName = 'bulbasaur';
                                             });
                                           },
@@ -372,8 +403,7 @@ class _NewTeamPage extends State<TeamPage> {
                       Poke? poke = snapshot.data;
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(
-                              child: CircularProgressIndicator());
+                          return const Center(child: DisplayLoader());
                         case ConnectionState.done:
                           if (snapshot.hasError) {
                             return Text(
@@ -381,29 +411,55 @@ class _NewTeamPage extends State<TeamPage> {
                               style: const TextStyle(color: Colors.red),
                             );
                           } else {
-                            return Column(
-                              children: <Widget>[
-                                Text(
-                                  "${poke!.name}",
-                                  style: Theme.of(context).textTheme.headline3,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.network("${poke.sprite}",
-                                        height: 200, width: 200),
-                                    DisplayTypesWidgets(
-                                        key: UniqueKey(),
-                                        strings: poke.types,
-                                        size: 50),
-                                  ],
-                                ),
-                                DisplayStratStepWidgets(
-                                    key: UniqueKey(),
-                                    pokeStrat: _pokeStrat,
-                                    pokeDetails: poke)
-                              ],
-                            );
+                            return FutureBuilder<Natures>(
+                                future: _dataNature(),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<Natures> snapshot) {
+                                  Natures? natures = snapshot.data;
+                                  switch (snapshot.connectionState) {
+                                    case ConnectionState.waiting:
+                                      return const Center(
+                                          child: DisplayLoader());
+                                    case ConnectionState.done:
+                                      if (snapshot.hasError) {
+                                        return Text(
+                                          '${snapshot.error}',
+                                          style: const TextStyle(
+                                              color: Colors.red),
+                                        );
+                                      } else {
+                                        return Column(
+                                          children: <Widget>[
+                                            Text(
+                                              "${poke!.name}",
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .headline3,
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Image.network("${poke.sprite}",
+                                                    height: 200, width: 200),
+                                                DisplayTypesWidgets(
+                                                    key: UniqueKey(),
+                                                    strings: poke.types,
+                                                    size: 50),
+                                              ],
+                                            ),
+                                            DisplayStratStepWidgets(
+                                                key: UniqueKey(),
+                                                pokeStrat: _pokeStrat,
+                                                pokeDetails: poke,
+                                                natures: natures!)
+                                          ],
+                                        );
+                                      }
+                                    default:
+                                      return const Text('');
+                                  }
+                                });
                           }
                         default:
                           return const Text('');

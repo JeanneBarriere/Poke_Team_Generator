@@ -7,6 +7,8 @@ import '../config/palette.dart';
 import '../pages/search_pokemon_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'display_loader.dart';
+
 class NavigationDrawerWidget extends StatelessWidget {
   final padding = EdgeInsets.symmetric(horizontal: 20);
 
@@ -27,7 +29,7 @@ class NavigationDrawerWidget extends StatelessWidget {
               SharedPreferences? prefs = snapshot.data;
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: DisplayLoader());
                 case ConnectionState.done:
                   if (snapshot.hasError) {
                     return Text(

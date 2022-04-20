@@ -52,7 +52,7 @@ class Movepool {
     name = name.contains('eiscue') ? 'eiscue' : name;
     name = name.contains('zacian') ? 'zacian' : name;
     name = name.contains('zamazenta') ? 'zamazenta' : name;
-    name = name.contains('nidoran') ? 'nidoran' : name;
+    name = name.contains('nidoran') ? name.replaceAll('-', "") : name;
 
     name = name.contains('necrozma-dusk') ? 'necrozmaduskmane' : name;
     name = name.contains('necrozma-dawn') ? 'necrozmadawnwings' : name;

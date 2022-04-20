@@ -1,7 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:front/model/natures_model.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:front/model/poke_strat_model.dart';
+import 'package:front/widget/team/display_items_widget.dart';
+import 'package:front/widget/display_loader.dart';
+import 'package:front/widget/team/display_moves_strat_widget.dart';
+import 'package:http/http.dart' as http;
 
 import 'display_details_strat_widget.dart';
 import 'display_stats_strat_widget.dart';
@@ -9,12 +16,14 @@ import 'display_stats_strat_widget.dart';
 class DisplayStratStepWidgets extends StatefulWidget {
   final PokeStrat pokeStrat;
   final Poke pokeDetails;
+  final Natures natures;
 
-  const DisplayStratStepWidgets({
-    Key? key,
-    required this.pokeStrat,
-    required this.pokeDetails,
-  }) : super(key: key);
+  const DisplayStratStepWidgets(
+      {Key? key,
+      required this.pokeStrat,
+      required this.pokeDetails,
+      required this.natures})
+      : super(key: key);
 
   @override
   State<DisplayStratStepWidgets> createState() {
@@ -25,12 +34,14 @@ class DisplayStratStepWidgets extends StatefulWidget {
 
 class _DisplayStratStepWidgetsState extends State<DisplayStratStepWidgets> {
   PokeStrat? _pokeStrat;
-  final List<bool> _isOpen = [true, false, false];
+  final List<bool> _isOpen = [true, false, false, false];
   Poke? _pokeDetails;
+  int _level = 50;
 
   _DisplayStratStepWidgetsState(PokeStrat pokeStrat, Poke pokeDetails) {
     _pokeStrat = pokeStrat;
     _pokeDetails = pokeDetails;
+    _level = pokeStrat.level!;
   }
 
   TextStyle styleTitle = const TextStyle(color: Colors.white70, fontSize: 30.0);
@@ -47,6 +58,12 @@ class _DisplayStratStepWidgetsState extends State<DisplayStratStepWidgets> {
               key: UniqueKey(),
               gender: _pokeDetails!.gender!,
               poke: _pokeStrat!,
+              setLevel: (value) => {
+                setState(() {
+                  _level = value;
+                })
+              },
+              abilities: _pokeDetails!.abilities,
             ),
             headerBuilder: (BuildContext context, bool isExpanded) {
               return ListTile(
@@ -61,14 +78,49 @@ class _DisplayStratStepWidgetsState extends State<DisplayStratStepWidgets> {
             canTapOnHeader: true,
             isExpanded: _isOpen[1],
             body: DisplayStatsStratWidgets(
+                key: UniqueKey(),
+                baseStat: _pokeDetails!.stats,
+                poke: _pokeStrat!,
+                level: _level,
+                natures: widget.natures!),
+            headerBuilder: (BuildContext context, bool isExpanded) {
+              return ListTile(
+                title: Text(
+                  "Stats",
+                  style: styleTitle,
+                ),
+              );
+            },
+          ),
+          ExpansionPanel(
+            canTapOnHeader: true,
+            isExpanded: _isOpen[2],
+            body: DisplayMovesStratWidgets(
               key: UniqueKey(),
               baseStat: _pokeDetails!.stats,
+              poke: _pokeStrat!,
+              level: _level,
+            ),
+            headerBuilder: (BuildContext context, bool isExpanded) {
+              return ListTile(
+                title: Text(
+                  "Moves",
+                  style: styleTitle,
+                ),
+              );
+            },
+          ),
+          ExpansionPanel(
+            canTapOnHeader: true,
+            isExpanded: _isOpen[3],
+            body: DisplayItemWidgets(
+              key: UniqueKey(),
               poke: _pokeStrat!,
             ),
             headerBuilder: (BuildContext context, bool isExpanded) {
               return ListTile(
                 title: Text(
-                  "Stats",
+                  "Items",
                   style: styleTitle,
                 ),
               );

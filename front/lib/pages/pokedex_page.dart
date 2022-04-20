@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:front/model/pokedex_model.dart';
 import 'package:front/pages/pokemon_page.dart';
+import 'package:front/widget/display_loader.dart';
 import 'package:front/widget/display_types_widget.dart';
 import 'package:front/widget/generation_dropdown_button.dart';
 import 'package:front/widget/type_dropdown_button.dart';
 import '../widget/navigation_drawer_widget.dart';
-import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
@@ -21,10 +21,8 @@ class PokedexPage extends StatefulWidget {
 }
 
 class _PokedexPage extends State<PokedexPage> {
-  @override
-  String _PokeName = "pikachu";
-  List<String> _Pokedex = [];
-  List<String> _PokedexFilter = [];
+  List<String> _pokedex = [];
+  List<String> _pokedexFilter = [];
   String _generation = "Generation 1";
   String _type1 = "Type";
   String _type2 = "Type";
@@ -55,28 +53,28 @@ class _PokedexPage extends State<PokedexPage> {
   _generationFilter() {
     switch (_generation) {
       case "Generation 1":
-        _PokedexFilter = _Pokedex.sublist(0, 151);
+        _pokedexFilter = _pokedex.sublist(0, 151);
         break;
       case "Generation 2":
-        _PokedexFilter = _Pokedex.sublist(151, 251);
+        _pokedexFilter = _pokedex.sublist(151, 251);
         break;
       case "Generation 3":
-        _PokedexFilter = _Pokedex.sublist(251, 386);
+        _pokedexFilter = _pokedex.sublist(251, 386);
         break;
       case "Generation 4":
-        _PokedexFilter = _Pokedex.sublist(386, 493);
+        _pokedexFilter = _pokedex.sublist(386, 493);
         break;
       case "Generation 5":
-        _PokedexFilter = _Pokedex.sublist(493, 649);
+        _pokedexFilter = _pokedex.sublist(493, 649);
         break;
       case "Generation 6":
-        _PokedexFilter = _Pokedex.sublist(649, 721);
+        _pokedexFilter = _pokedex.sublist(649, 721);
         break;
       case "Generation 7":
-        _PokedexFilter = _Pokedex.sublist(721, 809);
+        _pokedexFilter = _pokedex.sublist(721, 809);
         break;
       case "Generation 8":
-        _PokedexFilter = _Pokedex.sublist(809, 898);
+        _pokedexFilter = _pokedex.sublist(809, 898);
         break;
       default:
     }
@@ -133,8 +131,7 @@ class _PokedexPage extends State<PokedexPage> {
                             Pokedex? pokedex = snapshot.data;
                             switch (snapshot.connectionState) {
                               case ConnectionState.waiting:
-                                return const Center(
-                                    child: CircularProgressIndicator());
+                                return const Center(child: DisplayLoader());
                               case ConnectionState.done:
                                 if (snapshot.hasError) {
                                   return Text(
@@ -142,7 +139,7 @@ class _PokedexPage extends State<PokedexPage> {
                                     style: const TextStyle(color: Colors.red),
                                   );
                                 } else {
-                                  _Pokedex = pokedex!.names!;
+                                  _pokedex = pokedex!.names!;
                                   _generationFilter();
                                   return Column(children: <Widget>[
                                     Row(
@@ -159,127 +156,143 @@ class _PokedexPage extends State<PokedexPage> {
                                                   MainAxisAlignment.center,
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.center,
-                                              children:
-                                                  _PokedexFilter.map(
-                                                      (item) => Row(
-                                                            children: [
-                                                              FutureBuilder<
-                                                                      Poke>(
-                                                                  future:
-                                                                      _dataPoke(
-                                                                          item),
-                                                                  builder: (BuildContext
-                                                                          context,
-                                                                      AsyncSnapshot<
-                                                                              Poke>
-                                                                          snapshot) {
-                                                                    Poke? poke =
-                                                                        snapshot
-                                                                            .data;
-                                                                    switch (snapshot
-                                                                        .connectionState) {
-                                                                      case ConnectionState
-                                                                          .waiting:
-                                                                        return Center(
-                                                                            child:
-                                                                                Padding(
+                                              children: _pokedexFilter
+                                                  .map((item) => Row(
+                                                        children: [
+                                                          FutureBuilder<Poke>(
+                                                              future: _dataPoke(
+                                                                  item),
+                                                              builder: (BuildContext
+                                                                      context,
+                                                                  AsyncSnapshot<
+                                                                          Poke>
+                                                                      snapshot) {
+                                                                Poke? poke =
+                                                                    snapshot
+                                                                        .data;
+                                                                switch (snapshot
+                                                                    .connectionState) {
+                                                                  case ConnectionState
+                                                                      .waiting:
+                                                                    return Center(
+                                                                        child:
+                                                                            Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .symmetric(
+                                                                          horizontal:
+                                                                              0,
+                                                                          vertical:
+                                                                              8.0),
+                                                                      child:
+                                                                          Container(
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          border:
+                                                                              Border.all(
+                                                                            color:
+                                                                                Colors.red[700]!,
+                                                                          ),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(10.0),
+                                                                          color:
+                                                                              const Color(0xFF343442),
+                                                                        ),
+                                                                        padding: const EdgeInsets.symmetric(
+                                                                            horizontal:
+                                                                                20.0,
+                                                                            vertical:
+                                                                                10.0),
+                                                                        width: MediaQuery.of(context).size.width *
+                                                                            0.95,
+                                                                        height:
+                                                                            110.0,
+                                                                        child:
+                                                                            Row(
+                                                                          mainAxisAlignment:
+                                                                              MainAxisAlignment.center,
+                                                                          children: const [
+                                                                            DisplayLoader(),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                        // child:
+                                                                        //     DisplayLoader()
+                                                                        );
+                                                                  case ConnectionState
+                                                                      .done:
+                                                                    if (snapshot
+                                                                        .hasError) {
+                                                                      return Text(
+                                                                        '${snapshot.error}',
+                                                                        style: const TextStyle(
+                                                                            color:
+                                                                                Colors.red),
+                                                                      );
+                                                                    } else {
+                                                                      return Visibility(
+                                                                        visible:
+                                                                            (_type1 == "Type" || poke!.types.contains(_type1)) &&
+                                                                                (_type2 == "Type" || poke!.types.contains(_type2)),
+                                                                        child:
+                                                                            Padding(
                                                                           padding: const EdgeInsets.symmetric(
                                                                               horizontal: 0,
                                                                               vertical: 8.0),
                                                                           child:
-                                                                              Container(
-                                                                            decoration:
-                                                                                BoxDecoration(
-                                                                              border: Border.all(
-                                                                                color: Colors.red[700]!,
+                                                                              GestureDetector(
+                                                                            onTap:
+                                                                                () {
+                                                                              Navigator.of(context).push(MaterialPageRoute(
+                                                                                builder: (context) => PokemonPage(key: UniqueKey(), title: poke!.name, name: poke.name),
+                                                                              ));
+                                                                            },
+                                                                            child:
+                                                                                Container(
+                                                                              decoration: BoxDecoration(
+                                                                                border: Border.all(
+                                                                                  color: Colors.red[700]!,
+                                                                                ),
+                                                                                borderRadius: BorderRadius.circular(10.0),
+                                                                                color: const Color(0xFF343442),
                                                                               ),
-                                                                              borderRadius: BorderRadius.circular(10.0),
-                                                                              color: const Color(0xFF343442),
-                                                                            ),
-                                                                            padding:
-                                                                                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                                                                            width:
-                                                                                MediaQuery.of(context).size.width * 0.95,
-                                                                            height:
-                                                                                110.0,
-                                                                            child:
-                                                                                Row(
-                                                                              mainAxisAlignment: MainAxisAlignment.center,
-                                                                              children: const [
-                                                                                CircularProgressIndicator(),
-                                                                              ],
-                                                                            ),
-                                                                          ),
-                                                                        )
-                                                                            // child:
-                                                                            //     CircularProgressIndicator()
-                                                                            );
-                                                                      case ConnectionState
-                                                                          .done:
-                                                                        if (snapshot
-                                                                            .hasError) {
-                                                                          return Text(
-                                                                            '${snapshot.error}',
-                                                                            style:
-                                                                                const TextStyle(color: Colors.red),
-                                                                          );
-                                                                        } else {
-                                                                          return Visibility(
-                                                                            visible:
-                                                                                (_type1 == "Type" || poke!.types.contains(_type1)) && (_type2 == "Type" || poke!.types.contains(_type2)),
-                                                                            child:
-                                                                                Padding(
-                                                                              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8.0),
-                                                                              child: GestureDetector(
-                                                                                onTap: () {
-                                                                                  Navigator.of(context).push(MaterialPageRoute(
-                                                                                    builder: (context) => PokemonPage(key: UniqueKey(), title: poke!.name, name: poke.name),
-                                                                                  ));
-                                                                                },
-                                                                                child: Container(
-                                                                                  decoration: BoxDecoration(
-                                                                                    border: Border.all(
-                                                                                      color: Colors.red[700]!,
-                                                                                    ),
-                                                                                    borderRadius: BorderRadius.circular(10.0),
-                                                                                    color: const Color(0xFF343442),
+                                                                              padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+                                                                              width: MediaQuery.of(context).size.width * 0.95,
+                                                                              child: Row(
+                                                                                children: <Widget>[
+                                                                                  Padding(
+                                                                                    padding: const EdgeInsets.all(5.0),
+                                                                                    child: Image.network("${poke!.icon}"),
                                                                                   ),
-                                                                                  padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
-                                                                                  width: MediaQuery.of(context).size.width * 0.95,
-                                                                                  child: Row(
-                                                                                    children: <Widget>[
-                                                                                      Padding(
-                                                                                        padding: const EdgeInsets.all(5.0),
-                                                                                        child: Image.network("${poke!.icon}"),
-                                                                                      ),
-                                                                                      DisplayTypesWidgets(key: UniqueKey(), strings: poke.types, size: 30),
-                                                                                      Flexible(
-                                                                                        child: FittedBox(
-                                                                                          fit: BoxFit.scaleDown,
-                                                                                          child: Padding(
-                                                                                            padding: const EdgeInsets.all(8.0),
-                                                                                            child: Text(
-                                                                                              "${poke.name}",
-                                                                                              maxLines: 1,
-                                                                                              style: Theme.of(context).textTheme.headline3,
-                                                                                            ),
-                                                                                          ),
+                                                                                  DisplayTypesWidgets(key: UniqueKey(), strings: poke.types, size: 30),
+                                                                                  Flexible(
+                                                                                    child: FittedBox(
+                                                                                      fit: BoxFit.scaleDown,
+                                                                                      child: Padding(
+                                                                                        padding: const EdgeInsets.all(8.0),
+                                                                                        child: Text(
+                                                                                          "${poke.name}",
+                                                                                          maxLines: 1,
+                                                                                          style: Theme.of(context).textTheme.headline3,
                                                                                         ),
                                                                                       ),
-                                                                                    ],
+                                                                                    ),
                                                                                   ),
-                                                                                ),
+                                                                                ],
                                                                               ),
                                                                             ),
-                                                                          );
-                                                                        }
-                                                                      default:
-                                                                        return const Text(
-                                                                            '');
+                                                                          ),
+                                                                        ),
+                                                                      );
                                                                     }
-                                                                  }),
-                                                            ],
-                                                          )).toList()),
+                                                                  default:
+                                                                    return const Text(
+                                                                        '');
+                                                                }
+                                                              }),
+                                                        ],
+                                                      ))
+                                                  .toList()),
                                         ),
                                       ],
                                     )

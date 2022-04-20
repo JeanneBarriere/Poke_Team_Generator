@@ -1,3 +1,5 @@
+// ignore_for_file: use_full_hex_values_for_flutter_colors
+
 import 'package:flutter/material.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:front/pages/login_page.dart';
@@ -16,15 +18,14 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPage extends State<RegisterPage> {
-  @override
-  String _Username = "";
-  String _Password = "";
+  String _username = "";
+  String _password = "";
 
   Future<Poke> _login() async {
     var response = await http.post(
         Uri.parse('http://10.0.2.2:8000/create_user/?format=json'),
         headers: {"Content-Type": "application/json"},
-        body: json.encode({'username': _Username, 'password': _Password}));
+        body: json.encode({'username': _username, 'password': _password}));
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       Navigator.of(context).push(MaterialPageRoute(
@@ -51,7 +52,9 @@ class _RegisterPage extends State<RegisterPage> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Username',
+                      // ignore: use_full_hex_values_for_flutter_colors
                       labelStyle: TextStyle(color: Color(0xFFFAFAFAf)),
+                      // ignore: use_full_hex_values_for_flutter_colors
                       fillColor: Color(0xFF333333f),
                       filled: true,
                       enabledBorder: UnderlineInputBorder(
@@ -59,7 +62,7 @@ class _RegisterPage extends State<RegisterPage> {
                       ),
                     ),
                     onChanged: (String value) => setState(() {
-                      _Username = value;
+                      _username = value;
                     }),
                   ),
                 ),
@@ -80,7 +83,7 @@ class _RegisterPage extends State<RegisterPage> {
                       ),
                     ),
                     onChanged: (String value) => setState(() {
-                      _Password = value;
+                      _password = value;
                     }),
                   ),
                 ),

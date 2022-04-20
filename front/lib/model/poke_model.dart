@@ -1,7 +1,4 @@
-import 'dart:convert';
-
 import 'package:intl/intl.Dart';
-import 'package:http/http.dart' as http;
 
 class Poke {
   final String? name;
@@ -9,8 +6,10 @@ class Poke {
   final String? icon;
   final String? iconSmall;
   final List<String?> types;
-  final List<int?> stats;
+  final List<int> stats;
+  final List<String> abilities;
   int? gender;
+
   final String? urlSpecies;
 
   Poke(
@@ -21,13 +20,17 @@ class Poke {
       required this.types,
       required this.stats,
       this.gender,
+      required this.abilities,
       this.urlSpecies});
 
   factory Poke.fromJson(Map<String, dynamic> parsedJson) {
     List<String?> types = [];
     parsedJson["types"].forEach((type) =>
         types.add(toBeginningOfSentenceCase(type["type"]["name"] as String?)));
-    List<int?> stats = [];
+    List<String> abilities = [];
+    parsedJson["abilities"].forEach(
+        (ability) => abilities.add((ability["ability"]["name"] as String)));
+    List<int> stats = [];
     parsedJson["stats"].forEach((stat) => stats.add(stat["base_stat"]));
     return Poke(
       name: toBeginningOfSentenceCase(parsedJson["name"] as String?),
@@ -38,6 +41,7 @@ class Poke {
           ["front_default"] as String?,
       types: types,
       stats: stats,
+      abilities: abilities,
       urlSpecies: parsedJson["species"]["url"],
     );
   }
@@ -52,6 +56,7 @@ class Poke {
         sprite:
             "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/132.png",
         types: ["Normal"],
+        abilities: [],
         stats: [48, 48, 48, 48, 48, 48]);
   }
 }

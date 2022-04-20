@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:front/model/team_list_model.dart';
 import 'package:front/pages/team_page.dart';
+import 'package:front/widget/display_loader.dart';
 import '../widget/navigation_drawer_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -50,8 +51,7 @@ class _TeamListPage extends State<TeamListPage> {
                             TeamList? teamList = snapshot.data;
                             switch (snapshot.connectionState) {
                               case ConnectionState.waiting:
-                                return const Center(
-                                    child: CircularProgressIndicator());
+                                return const Center(child: DisplayLoader());
                               case ConnectionState.done:
                                 if (snapshot.hasError) {
                                   return Text(

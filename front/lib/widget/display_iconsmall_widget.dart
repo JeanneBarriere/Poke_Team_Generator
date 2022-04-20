@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:http/http.dart' as http;
 
+import 'display_loader.dart';
+
 class DisplayIconSmallWidgets extends StatelessWidget {
   final String? name;
 
@@ -32,7 +34,7 @@ class DisplayIconSmallWidgets extends StatelessWidget {
               Poke? poke = snapshot.data;
               switch (snapshot.connectionState) {
                 case ConnectionState.waiting:
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: DisplayLoader());
                 case ConnectionState.done:
                   if (snapshot.hasError) {
                     return Text(
