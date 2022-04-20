@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:http/http.dart' as http;
 
-import 'display_loader.dart';
+import '../display_loader.dart';
 
 class DisplayIconSmallWidgets extends StatelessWidget {
   final String? name;
+  final double size;
+  final double padding;
 
   Future<Poke> _dataPoke() async {
     var response =
@@ -22,7 +24,8 @@ class DisplayIconSmallWidgets extends StatelessWidget {
     return Future.error("error");
   }
 
-  const DisplayIconSmallWidgets({Key? key, required this.name})
+  const DisplayIconSmallWidgets(
+      {Key? key, required this.name, required this.size, required this.padding})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -50,9 +53,9 @@ class DisplayIconSmallWidgets extends StatelessWidget {
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(100))),
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: EdgeInsets.all(padding),
                               child: Image.network("${poke!.icon}",
-                                  height: 40, width: 40),
+                                  height: size, width: size),
                             )),
                       ],
                     );

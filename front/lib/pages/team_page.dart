@@ -217,13 +217,15 @@ class _NewTeamPage extends State<TeamPage> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               minimumSize: const Size(125, 60)),
-                          onPressed: () {
-                            if (_update) {
-                              _editTeam();
-                            } else {
-                              _addTeam();
-                            }
-                          },
+                          onPressed: _team.length == 0
+                              ? null
+                              : () {
+                                  if (_update) {
+                                    _editTeam();
+                                  } else {
+                                    _addTeam();
+                                  }
+                                },
                           child: const Text('Save Team'),
                         ),
                       ),
@@ -406,7 +408,7 @@ class _NewTeamPage extends State<TeamPage> {
                       Poke? poke = snapshot.data;
                       switch (snapshot.connectionState) {
                         case ConnectionState.waiting:
-                          return const Center(child: DisplayLoader(size: 40));
+                          return const Center(child: DisplayLoader(size: 80));
                         case ConnectionState.done:
                           if (snapshot.hasError) {
                             return Text(
@@ -422,7 +424,7 @@ class _NewTeamPage extends State<TeamPage> {
                                   switch (snapshot.connectionState) {
                                     case ConnectionState.waiting:
                                       return const Center(
-                                          child: DisplayLoader(size: 40));
+                                          child: DisplayLoader(size: 80));
                                     case ConnectionState.done:
                                       if (snapshot.hasError) {
                                         return Text(

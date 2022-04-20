@@ -1,12 +1,16 @@
+import 'package:front/model/team_simple_model.dart';
+
 class TeamList {
-  final List<String?> title;
+  final List<TeamSimple> teams;
 
   TeamList({
-    required this.title,
+    required this.teams,
   });
 
   factory TeamList.fromJson(Map<String, dynamic> parsedJson) {
-    List<String?> title = List<String>.from(parsedJson["list"]);
-    return TeamList(title: title);
+    List<TeamSimple> teams = [];
+    parsedJson['teams']
+        .forEach((team) => {teams.add(TeamSimple.fromJson(team))});
+    return TeamList(teams: teams);
   }
 }

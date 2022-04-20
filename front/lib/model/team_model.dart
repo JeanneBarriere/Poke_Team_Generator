@@ -17,11 +17,4 @@ class Team {
     String? title = parsedJson["title"];
     return Team(title: title, pokemon: pokemon);
   }
-
-  // Map toJson(String title, String newTitle, List<PokeStrat> team) {
-  //   List teamJson = []
-  //   Map team =
-  //       this.author != null ? this.author.toJson() : null;
-  //   return {'title': title, 'description': description, 'author': author};
-  // }
 }

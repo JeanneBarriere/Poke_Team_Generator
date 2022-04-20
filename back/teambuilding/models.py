@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 
 class Team(models.Model):
-    title = models.CharField(max_length=200, unique=True)
+    title = models.CharField(max_length=200, unique=False)
     # team = models.CharField(max_length=500, blank=True, null=True)
     update = models.DateTimeField('date_published', auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)

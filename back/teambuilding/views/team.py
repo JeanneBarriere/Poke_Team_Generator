@@ -15,9 +15,12 @@ def get_teams(request):
     team_list = Team.objects.filter(author=author)
     table_result = []
     for team in team_list:
-        table_result.append(team.title)
-    current = {'list': table_result}
-    return HttpResponse(json.dumps(current), status=200)
+        pokemons = Pokemon.objects.filter(team=team)
+        pokemon_list = []
+        for pokemon in pokemons:
+            pokemon_list.append(pokemon.name)
+        table_result.append({'title': team.title, 'list': pokemon_list})
+    return HttpResponse(json.dumps({'teams': table_result}), status=200)
 
 
 @api_view(['POST'])
@@ -42,7 +45,7 @@ def add_team(request):
         title=request.data["title"],
         author=User.objects.get(id=request.user.id)
     )
-    for poke in json_team["team"]:
+    for poke in request.dat3["team"]:
         save_poke(poke, team)
     team.save()
     return HttpResponse(json.dumps("Team added successfuly"), status=200)

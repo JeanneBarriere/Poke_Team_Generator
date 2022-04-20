@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:front/model/poke_strat_model.dart';
-import 'package:front/widget/display_iconsmall_widget.dart';
+import 'package:front/widget/team/display_iconsmall_widget.dart';
 
 class DisplayIconSmallBannerWidgets extends StatelessWidget {
   final List<PokeStrat?> listPoke;
@@ -35,7 +35,11 @@ class DisplayIconSmallBannerWidgets extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
-                child: DisplayIconSmallWidgets(name: poke!.name!.toLowerCase()),
+                child: DisplayIconSmallWidgets(
+                  name: poke!.name!.toLowerCase(),
+                  size: 40,
+                  padding: 8.0,
+                ),
               ),
             ),
           ));
