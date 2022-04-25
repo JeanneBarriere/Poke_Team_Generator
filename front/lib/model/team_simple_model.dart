@@ -10,7 +10,6 @@ class TeamSimple {
   });
 
   factory TeamSimple.fromJson(Map<String, dynamic> parsedJson) {
-    print(parsedJson);
     return TeamSimple(
         title: parsedJson["title"], pokemon: parsedJson['list'].cast<String>());
   }

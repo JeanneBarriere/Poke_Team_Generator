@@ -131,14 +131,6 @@ class _TeamListPage extends State<TeamListPage> {
                                                                             .start,
                                                                   ),
                                                                   Container(
-                                                                    // decoration:
-                                                                    //     BoxDecoration(
-                                                                    //   borderRadius:
-                                                                    //       BorderRadius.circular(
-                                                                    //           10.0),
-                                                                    //   color: const Color(
-                                                                    //       0xFF343442),
-                                                                    // ),
                                                                     width: MediaQuery.of(context)
                                                                             .size
                                                                             .width *

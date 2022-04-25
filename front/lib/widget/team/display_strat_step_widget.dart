@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:front/model/natures_model.dart';
@@ -44,8 +45,9 @@ class _DisplayStratStepWidgetsState extends State<DisplayStratStepWidgets> {
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) print("coucou");
     return ExpansionPanelList(
-        animationDuration: const Duration(milliseconds: 800),
+        animationDuration: const Duration(milliseconds: 2000),
         children: [
           ExpansionPanel(
             canTapOnHeader: true,
