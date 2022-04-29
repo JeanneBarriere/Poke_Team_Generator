@@ -13,7 +13,7 @@ class Item {
   factory Item.fromJson(Map<String, dynamic> parsedJson, String name) {
     String description = "";
     parsedJson.forEach(
-        (k, v) => {if (!v.containsValue(name)) description = v["desc"]});
+        (k, v) => {if (v.containsValue(name)) description = v["desc"]});
 
     return Item(name: name, description: description);
   }

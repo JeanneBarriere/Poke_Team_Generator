@@ -57,6 +57,8 @@ class Poke {
             "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/132.png",
         types: ["Normal"],
         abilities: [],
+        icon:
+            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/132.png',
         stats: [48, 48, 48, 48, 48, 48]);
   }
 }

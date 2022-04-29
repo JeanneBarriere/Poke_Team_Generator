@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.front">
    <application
-        android:label="front"
+        android:label="Team Builder"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"

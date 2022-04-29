@@ -12,6 +12,7 @@ import 'package:front/widget/display_loader.dart';
 import 'package:front/widget/team/display_icon_small_banner_widget.dart';
 import 'package:front/widget/team/display_strat_step_widget.dart';
 import 'package:front/widget/display_types_widget.dart';
+import 'package:front/widget/team/display_title_team_widget.dart';
 import '../widget/navigation_drawer_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
@@ -20,16 +21,21 @@ import 'dart:convert';
 import 'dart:async';
 
 class TeamPage extends StatefulWidget {
-  const TeamPage({Key? key, required this.title, required this.teamTitle})
+  const TeamPage(
+      {Key? key,
+      required this.title,
+      required this.teamTitle,
+      required this.numGenerator})
       : super(key: key);
 
   final String title;
   final String teamTitle;
+  final int numGenerator;
 
   @override
   State<TeamPage> createState() {
     // ignore: no_logic_in_create_state, prefer_if_null_operators, unnecessary_null_comparison
-    return _NewTeamPage(teamTitle == null ? "" : teamTitle);
+    return _NewTeamPage(teamTitle == null ? "" : teamTitle, numGenerator);
   }
 }
 
@@ -40,10 +46,18 @@ class _NewTeamPage extends State<TeamPage> {
   String _newTitle = "";
   bool _update = false;
   int? _current;
+  Team team = Team.create([], "", "");
+  int _numGenerator = -1;
+  bool _generate = false;
   PokeStrat _pokeStrat = PokeStrat.fromName("pikachu");
 
-  _NewTeamPage(String teamTitle) {
+  _NewTeamPage(String teamTitle, int numGenerator) {
     // ignore: unnecessary_null_comparison
+    _numGenerator = numGenerator;
+    if (numGenerator >= 0) {
+      _generate = true;
+      _getTeamGenerator();
+    }
     if (teamTitle != null && teamTitle != "") {
       _title = teamTitle;
       _getTeamTitle();
@@ -83,19 +97,51 @@ class _NewTeamPage extends State<TeamPage> {
     return _team.map((poke) => (poke.toJson())).toList();
   }
 
-  Future<Poke> _addTeam() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  void alertTitleEmpty() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        backgroundColor: const Color(0xFF343442),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+        title: const Text('Description',
+            style: TextStyle(
+                color: Color(0xFF993030), fontWeight: FontWeight.bold)),
+        content: Text(
+          "The title of the team must not be empty",
+          style: TextStyle(
+            color: Colors.grey[300],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text('OK',
+                style: TextStyle(
+                    color: Color(0xFF993030), fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
 
-    var response =
-        await http.post(Uri.parse('http://10.0.2.2:8000/addTeam/?format=json'),
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": "token " + prefs.getString('token')!
-            },
-            body: json.encode({
-              'title': _newTitle,
-              'team': teamToJson(),
-            }));
+  Future<Poke> _addTeam() async {
+    if (team.newTitle == "") {
+      alertTitleEmpty();
+      return Future.error("The title of the team must not be empty");
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var response = await http.post(
+        Uri.parse(
+            'http://gentle-ravine-49505.herokuapp.com/addTeam/?format=json'),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "token " + prefs.getString('token')!
+        },
+        body: json.encode({
+          'title': team.newTitle,
+          'team': teamToJson(),
+        }));
     if (response.statusCode == 200) {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
@@ -105,11 +151,19 @@ class _NewTeamPage extends State<TeamPage> {
   }
 
   Future<Poke> _editTeam() async {
+    if (team.newTitle == "") {
+      alertTitleEmpty();
+      return Future.error("The title of the team must not be empty");
+    }
     var response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/editTeam/?format=json'),
+        Uri.parse(
+            'http://gentle-ravine-49505.herokuapp.com/editTeam/?format=json'),
         headers: {"Content-Type": "application/json"},
-        body: json.encode(
-            {'title': _title, 'newTitle': _newTitle, 'team': teamToJson()}));
+        body: json.encode({
+          'title': _title,
+          'newTitle': team.newTitle,
+          'team': teamToJson()
+        }));
     if (response.statusCode == 200) {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
@@ -120,14 +174,14 @@ class _NewTeamPage extends State<TeamPage> {
 
   Future<void> _getTeamTitle() async {
     var response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/getTeamTitle/?format=json'),
+        Uri.parse(
+            'http://gentle-ravine-49505.herokuapp.com/getTeamTitle/?format=json'),
         headers: {"Content-Type": "application/json"},
         body: json.encode({'title': _title}));
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
       Team team = Team.fromJson(jsonResponse);
       setState(() {
-        // _team = team.pokemon;
         _update = true;
         _newTitle = _title;
         _team = team.pokemon;
@@ -137,7 +191,35 @@ class _NewTeamPage extends State<TeamPage> {
         }
       });
       myController.text = _newTitle;
+      team.update(_team, _title, _newTitle);
     } else {
+      return Future.error("error");
+    }
+  }
+
+  Future<void> _getTeamGenerator() async {
+    var response = await http.get(
+        Uri.parse('http://gentle-ravine-49505.herokuapp.com/getTeamGenerator/' +
+            _numGenerator.toString() +
+            '?format=json'),
+        headers: {"Content-Type": "application/json"});
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      Team team = Team.fromJson(jsonResponse);
+      setState(() {
+        _update = false;
+        _newTitle = "";
+        _team = team.pokemon;
+        if (team.pokemon.isNotEmpty) {
+          _pokeStrat = team.pokemon[0];
+          _current = 0;
+        }
+      });
+      myController.text = _newTitle;
+      team.update(_team, _title, _newTitle);
+      _generate = false;
+    } else {
+      print('Oh no !');
       return Future.error("error");
     }
   }
@@ -183,298 +265,309 @@ class _NewTeamPage extends State<TeamPage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: ListView(
-        children: <Widget>[
-          Center(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
+      body: _generate
+          ? Center(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: const [
+                    Text('Team generation in progress ...'),
+                    DisplayLoader(size: 80)
+                  ]),
+            )
+          : ListView(
+              children: <Widget>[
+                Center(
+                  child: Column(
                     children: [
-                      Flexible(
-                        child: TextField(
-                          controller: myController,
-                          onChanged: (value) => setState(() {
-                            _newTitle = value;
-                          }),
-                          autofocus: false,
-                          style: const TextStyle(color: Color(0xfffafafaf)),
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Title of Team',
-                            labelStyle: TextStyle(color: Color(0xfffafafaf)),
-                            fillColor: Color(0xff333333f),
-                            filled: true,
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Color(0xFFCF1B1B)),
-                            ),
-                          ),
-                        ),
-                      ),
                       Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(125, 60)),
-                          onPressed: _team.length == 0
-                              ? null
-                              : () {
-                                  if (_update) {
-                                    _editTeam();
-                                  } else {
-                                    _addTeam();
-                                  }
-                                },
-                          child: const Text('Save Team'),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Flexible(
+                                child: TeamTitle(
+                                    key: UniqueKey(),
+                                    controller: myController,
+                                    team: team)),
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    minimumSize: const Size(125, 60)),
+                                onPressed: _team.isEmpty
+                                    ? null
+                                    : () {
+                                        if (_update) {
+                                          _editTeam();
+                                        } else {
+                                          _addTeam();
+                                        }
+                                      },
+                                child: const Text('Save Team'),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      DisplayIconSmallBannerWidgets(
+                        listPoke: _team,
+                        onPress: (int? newValue) {
+                          setState(() {
+                            if (newValue != null) {
+                              _current = newValue;
+                              _pokeStrat = _team[newValue];
+                            } else {
+                              _pokeStrat = PokeStrat.fromName('pikachu');
+                              _pokeName = 'pikachu';
+                              _current = null;
+                            }
+                          });
+                        },
+                        current: _current,
+                      ),
+                      FutureBuilder<Pokedex>(
+                          future: _dataPokedex(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<Pokedex> snapshot) {
+                            Pokedex? pokedex = snapshot.data;
+                            switch (snapshot.connectionState) {
+                              case ConnectionState.waiting:
+                                return const Center();
+                              case ConnectionState.done:
+                                if (snapshot.hasError) {
+                                  return Text(
+                                    '${snapshot.error}',
+                                    style: const TextStyle(color: Colors.red),
+                                  );
+                                } else {
+                                  return Column(
+                                    children: <Widget>[
+                                      Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              SizedBox(
+                                                height: 40,
+                                                width: 220,
+                                                child: Autocomplete(
+                                                  optionsBuilder:
+                                                      (TextEditingValue
+                                                          textEditingValue) {
+                                                    if (textEditingValue.text ==
+                                                        '') {
+                                                      return const Iterable<
+                                                          String>.empty();
+                                                    }
+                                                    return pokedex!.names!
+                                                        .where((String option) {
+                                                      return option.contains(
+                                                          textEditingValue.text
+                                                              .toLowerCase());
+                                                    });
+                                                  },
+                                                  onSelected: (value) =>
+                                                      _displayPoke(value),
+                                                  fieldViewBuilder: (context,
+                                                      controller,
+                                                      focusNode,
+                                                      onFieldSubmitted) {
+                                                    return TextField(
+                                                      controller: controller,
+                                                      focusNode: focusNode,
+                                                      onEditingComplete:
+                                                          onFieldSubmitted,
+                                                      onSubmitted: (value) =>
+                                                          _displayPoke(value),
+                                                      autofocus: false,
+                                                      style: const TextStyle(
+                                                          color: Color(
+                                                              0xFFFAFAFAf)),
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                        labelText:
+                                                            'Pokemon name',
+                                                        labelStyle: TextStyle(
+                                                            color: Color(
+                                                                0xFFFAFAFAf)),
+                                                        fillColor:
+                                                            Color(0xFF333333f),
+                                                        filled: true,
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 4),
+                                                child: _current == null
+                                                    ? ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                            primary: _team
+                                                                        .length <
+                                                                    6
+                                                                ? Palette
+                                                                    .kToDark
+                                                                : const Color(
+                                                                    0xFF727171),
+                                                            minimumSize:
+                                                                const Size(
+                                                                    100, 38)),
+                                                        onPressed: () {
+                                                          if (_team.length <
+                                                              6) {
+                                                            setState(() {
+                                                              _team.add(
+                                                                  _pokeStrat);
+                                                              _current =
+                                                                  _team.length -
+                                                                      1;
+                                                            });
+                                                          }
+                                                        },
+                                                        child: const Text(
+                                                            'Add Pokemon'),
+                                                      )
+                                                    : ElevatedButton(
+                                                        style: ElevatedButton.styleFrom(
+                                                            primary: _team
+                                                                        .length <
+                                                                    6
+                                                                ? Palette
+                                                                    .kToDark
+                                                                : const Color(
+                                                                    0xFF727171),
+                                                            minimumSize:
+                                                                const Size(
+                                                                    100, 38)),
+                                                        onPressed: () {
+                                                          if (_team.length <
+                                                              6) {
+                                                            setState(() {
+                                                              _team[_current!] =
+                                                                  PokeStrat
+                                                                      .fromName(
+                                                                          _pokeName);
+                                                            });
+                                                          }
+                                                        },
+                                                        child: const Text(
+                                                            'Change'),
+                                                      ),
+                                              ),
+                                            ],
+                                          )),
+                                      Padding(
+                                        padding: const EdgeInsets.all(4),
+                                        child: _current != null
+                                            ? ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                    primary: Palette.kToDark,
+                                                    minimumSize:
+                                                        const Size(50, 38)),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _team.removeAt(_current!);
+                                                    _current = null;
+                                                    _pokeStrat =
+                                                        PokeStrat.fromName(
+                                                            'bulbasaur');
+                                                    _pokeName = 'bulbasaur';
+                                                  });
+                                                },
+                                                child: const Text('Delete'),
+                                              )
+                                            : Container(),
+                                      ),
+                                    ],
+                                  );
+                                }
+                              default:
+                                return const Text('');
+                            }
+                          }),
+                      FutureBuilder<Poke>(
+                          future: _dataPokeDetail(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<Poke> snapshot) {
+                            Poke? poke = snapshot.data;
+                            switch (snapshot.connectionState) {
+                              case ConnectionState.waiting:
+                                return const Center(
+                                    child: DisplayLoader(size: 80));
+                              case ConnectionState.done:
+                                if (snapshot.hasError) {
+                                  return Text(
+                                    '${snapshot.error}',
+                                    style: const TextStyle(color: Colors.red),
+                                  );
+                                } else {
+                                  return FutureBuilder<Natures>(
+                                      future: _dataNature(),
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot<Natures> snapshot) {
+                                        Natures? natures = snapshot.data;
+                                        switch (snapshot.connectionState) {
+                                          case ConnectionState.waiting:
+                                            return const Center(
+                                                child: DisplayLoader(size: 80));
+                                          case ConnectionState.done:
+                                            if (snapshot.hasError) {
+                                              return Text(
+                                                '${snapshot.error}',
+                                                style: const TextStyle(
+                                                    color: Colors.red),
+                                              );
+                                            } else {
+                                              return Column(
+                                                children: <Widget>[
+                                                  Text(
+                                                    "${poke!.name}",
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .headline3,
+                                                  ),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Image.network(
+                                                          "${poke.sprite}",
+                                                          height: 200,
+                                                          width: 200),
+                                                      DisplayTypesWidgets(
+                                                          key: UniqueKey(),
+                                                          strings: poke.types,
+                                                          size: 50),
+                                                    ],
+                                                  ),
+                                                  DisplayStratStepWidgets(
+                                                      key: UniqueKey(),
+                                                      pokeStrat: _pokeStrat,
+                                                      pokeDetails: poke,
+                                                      natures: natures!)
+                                                ],
+                                              );
+                                            }
+                                          default:
+                                            return const Text('');
+                                        }
+                                      });
+                                }
+                              default:
+                                return const Text('');
+                            }
+                          }),
                     ],
                   ),
                 ),
-                DisplayIconSmallBannerWidgets(
-                  listPoke: _team,
-                  onPress: (int? newValue) {
-                    setState(() {
-                      if (newValue != null) {
-                        _current = newValue;
-                        _pokeStrat = _team[newValue];
-                      } else {
-                        _pokeStrat = PokeStrat.fromName('pikachu');
-                        _pokeName = 'pikachu';
-                        _current = null;
-                      }
-                    });
-                  },
-                  current: _current,
-                ),
-                FutureBuilder<Pokedex>(
-                    future: _dataPokedex(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<Pokedex> snapshot) {
-                      Pokedex? pokedex = snapshot.data;
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return const Center();
-                        case ConnectionState.done:
-                          if (snapshot.hasError) {
-                            return Text(
-                              '${snapshot.error}',
-                              style: const TextStyle(color: Colors.red),
-                            );
-                          } else {
-                            return Column(
-                              children: <Widget>[
-                                Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          height: 40,
-                                          width: 220,
-                                          child: Autocomplete(
-                                            optionsBuilder: (TextEditingValue
-                                                textEditingValue) {
-                                              if (textEditingValue.text == '') {
-                                                return const Iterable<
-                                                    String>.empty();
-                                              }
-                                              return pokedex!.names!
-                                                  .where((String option) {
-                                                return option.contains(
-                                                    textEditingValue.text
-                                                        .toLowerCase());
-                                              });
-                                            },
-                                            onSelected: (value) =>
-                                                _displayPoke(value),
-                                            fieldViewBuilder: (context,
-                                                controller,
-                                                focusNode,
-                                                onFieldSubmitted) {
-                                              return TextField(
-                                                controller: controller,
-                                                focusNode: focusNode,
-                                                onEditingComplete:
-                                                    onFieldSubmitted,
-                                                onSubmitted: (value) =>
-                                                    _displayPoke(value),
-                                                autofocus: false,
-                                                style: const TextStyle(
-                                                    color: Color(0xFFFAFAFAf)),
-                                                decoration:
-                                                    const InputDecoration(
-                                                  border: OutlineInputBorder(),
-                                                  labelText: 'Pokemon name',
-                                                  labelStyle: TextStyle(
-                                                      color:
-                                                          Color(0xFFFAFAFAf)),
-                                                  fillColor: Color(0xFF333333f),
-                                                  filled: true,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 4),
-                                          child: _current == null
-                                              ? ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                          primary: _team
-                                                                      .length <
-                                                                  6
-                                                              ? Palette.kToDark
-                                                              : const Color(
-                                                                  0xFF727171),
-                                                          minimumSize:
-                                                              const Size(
-                                                                  100, 38)),
-                                                  onPressed: () {
-                                                    if (_team.length < 6) {
-                                                      setState(() {
-                                                        _team.add(_pokeStrat);
-                                                        _current =
-                                                            _team.length - 1;
-                                                      });
-                                                    }
-                                                  },
-                                                  child:
-                                                      const Text('Add Pokemon'),
-                                                )
-                                              : ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                          primary: _team
-                                                                      .length <
-                                                                  6
-                                                              ? Palette.kToDark
-                                                              : const Color(
-                                                                  0xFF727171),
-                                                          minimumSize:
-                                                              const Size(
-                                                                  100, 38)),
-                                                  onPressed: () {
-                                                    if (_team.length < 6) {
-                                                      setState(() {
-                                                        _team[_current!] =
-                                                            PokeStrat.fromName(
-                                                                _pokeName);
-                                                      });
-                                                    }
-                                                  },
-                                                  child: const Text('Change'),
-                                                ),
-                                        ),
-                                      ],
-                                    )),
-                                Padding(
-                                  padding: const EdgeInsets.all(4),
-                                  child: _current != null
-                                      ? ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                              primary: _team.length < 6
-                                                  ? Palette.kToDark
-                                                  : const Color(0xFF727171),
-                                              minimumSize: const Size(50, 38)),
-                                          onPressed: () {
-                                            setState(() {
-                                              _team.removeAt(_current!);
-                                              _current = null;
-                                              _pokeStrat = PokeStrat.fromName(
-                                                  'bulbasaur');
-                                              _pokeName = 'bulbasaur';
-                                            });
-                                          },
-                                          child: const Text('Delete'),
-                                        )
-                                      : Container(),
-                                ),
-                              ],
-                            );
-                          }
-                        default:
-                          return const Text('');
-                      }
-                    }),
-                FutureBuilder<Poke>(
-                    future: _dataPokeDetail(),
-                    builder:
-                        (BuildContext context, AsyncSnapshot<Poke> snapshot) {
-                      Poke? poke = snapshot.data;
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return const Center(child: DisplayLoader(size: 80));
-                        case ConnectionState.done:
-                          if (snapshot.hasError) {
-                            return Text(
-                              '${snapshot.error}',
-                              style: const TextStyle(color: Colors.red),
-                            );
-                          } else {
-                            return FutureBuilder<Natures>(
-                                future: _dataNature(),
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<Natures> snapshot) {
-                                  Natures? natures = snapshot.data;
-                                  switch (snapshot.connectionState) {
-                                    case ConnectionState.waiting:
-                                      return const Center(
-                                          child: DisplayLoader(size: 80));
-                                    case ConnectionState.done:
-                                      if (snapshot.hasError) {
-                                        return Text(
-                                          '${snapshot.error}',
-                                          style: const TextStyle(
-                                              color: Colors.red),
-                                        );
-                                      } else {
-                                        return Column(
-                                          children: <Widget>[
-                                            Text(
-                                              "${poke!.name}",
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .headline3,
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Image.network("${poke.sprite}",
-                                                    height: 200, width: 200),
-                                                DisplayTypesWidgets(
-                                                    key: UniqueKey(),
-                                                    strings: poke.types,
-                                                    size: 50),
-                                              ],
-                                            ),
-                                            DisplayStratStepWidgets(
-                                                key: UniqueKey(),
-                                                pokeStrat: _pokeStrat,
-                                                pokeDetails: poke,
-                                                natures: natures!)
-                                          ],
-                                        );
-                                      }
-                                    default:
-                                      return const Text('');
-                                  }
-                                });
-                          }
-                        default:
-                          return const Text('');
-                      }
-                    }),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

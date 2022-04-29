@@ -23,7 +23,8 @@ class _RegisterPage extends State<RegisterPage> {
 
   Future<Poke> _login() async {
     var response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/create_user/?format=json'),
+        Uri.parse(
+            'http://gentle-ravine-49505.herokuapp.com/create_user/?format=json'),
         headers: {"Content-Type": "application/json"},
         body: json.encode({'username': _username, 'password': _password}));
     if (response.statusCode == 200) {

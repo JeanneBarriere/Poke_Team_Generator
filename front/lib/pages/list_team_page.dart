@@ -23,7 +23,8 @@ class _TeamListPage extends State<TeamListPage> {
   Future<TeamList> _dataTeamList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/getTeams/?format=json'),
+        Uri.parse(
+            'http://gentle-ravine-49505.herokuapp.com/getTeams/?format=json'),
         headers: {"Authorization": "token " + prefs.getString('token')!});
 
     final jsonResponse = jsonDecode(response.body);
@@ -83,6 +84,7 @@ class _TeamListPage extends State<TeamListPage> {
                                                             title: "Edit Team",
                                                             teamTitle:
                                                                 item.title!,
+                                                            numGenerator: -1,
                                                           ),
                                                         ));
                                                       },
@@ -176,6 +178,7 @@ class _TeamListPage extends State<TeamListPage> {
                                             key: UniqueKey(),
                                             title: "New Team",
                                             teamTitle: "",
+                                            numGenerator: -1,
                                           ),
                                         ));
                                       },

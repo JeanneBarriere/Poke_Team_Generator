@@ -45,9 +45,8 @@ class _DisplayStratStepWidgetsState extends State<DisplayStratStepWidgets> {
 
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) print("coucou");
     return ExpansionPanelList(
-        animationDuration: const Duration(milliseconds: 2000),
+        animationDuration: const Duration(milliseconds: 1000),
         children: [
           ExpansionPanel(
             canTapOnHeader: true,

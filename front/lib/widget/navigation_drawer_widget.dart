@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:front/pages/generator_page.dart';
 import 'package:front/pages/login_page.dart';
 import 'package:front/pages/pokedex_page.dart';
 import 'package:front/pages/list_team_page.dart';
@@ -67,6 +68,13 @@ class NavigationDrawerWidget extends StatelessWidget {
                                       icon: Icons.table_view_outlined,
                                       onClicked: () =>
                                           selectedItem(context, 2))),
+                              Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: buildMenuItem(
+                                    text: 'Generate Team',
+                                    icon: Icons.smart_toy_outlined,
+                                    onClicked: () => {selectedItem(context, 5)},
+                                  )),
                               Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: buildMenuItem(
@@ -159,6 +167,11 @@ class NavigationDrawerWidget extends StatelessWidget {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) =>
               RegisterPage(key: UniqueKey(), title: "Register"),
+        ));
+        break;
+      case 5:
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => GeneratorPage(key: UniqueKey()),
         ));
         break;
     }
