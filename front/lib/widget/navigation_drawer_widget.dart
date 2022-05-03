@@ -127,7 +127,7 @@ class NavigationDrawerWidget extends StatelessWidget {
     VoidCallback? onClicked,
   }) {
     final color = Colors.white;
-    final hoverColor = Colors.white70;
+    const hoverColor = Colors.white70;
 
     return ListTile(
       leading: Icon(icon, color: color),

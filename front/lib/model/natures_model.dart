@@ -9,8 +9,12 @@ class Natures {
 
   factory Natures.fromJson(Map<String, dynamic> parsedJson) {
     List<Nature> natures = [];
-    parsedJson['results'].forEach((element) => {
-          natures.add(Nature(name: element["name"], url: element["url"])),
+    parsedJson['natures'].forEach((element) => {
+          natures.add(Nature(
+              name: element["name"],
+              url: "",
+              decreasedStat: element['decreasedStat'],
+              increasedStat: element['increasedStat'])),
         });
 
     return Natures(natures: natures);

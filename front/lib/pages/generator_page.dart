@@ -14,17 +14,14 @@ class GeneratorPage extends StatefulWidget {
 
   @override
   State<GeneratorPage> createState() {
-    // ignore: no_logic_in_create_state, prefer_if_null_operators, unnecessary_null_comparison
     return _NewGeneratorPage();
   }
 }
 
 class _NewGeneratorPage extends State<GeneratorPage> {
-  int _numGenerator = 1;
-  List<String> _listPoke = [];
+  final List<String> _listPoke = [];
 
   _NewGeneratorPage() {
-    // ignore: unnecessary_null_comparison
     _getTeamGenerator();
   }
 
@@ -57,6 +54,7 @@ class _NewGeneratorPage extends State<GeneratorPage> {
                   title: "New Team",
                   teamTitle: "",
                   numGenerator: pokes.indexOf(poke),
+                  id: 0,
                 ),
               ));
             },
@@ -83,10 +81,20 @@ class _NewGeneratorPage extends State<GeneratorPage> {
     return Scaffold(
       drawer: const NavigationDrawerWidget(),
       appBar: AppBar(
-        title: const Text('Generate Team'),
+        title: const Text(
+          'Generate Team',
+        ),
       ),
       body: ListView(children: [
         Column(children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Choose the first Pokémon of your Team : ',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headline3,
+            ),
+          ),
           FutureBuilder<List<String>>(
               future: _getTeamGenerator(),
               builder:
@@ -107,11 +115,11 @@ class _NewGeneratorPage extends State<GeneratorPage> {
                         shrinkWrap: true,
                         crossAxisCount: 4,
                         children: _poke(pokes),
-                        physics: ScrollPhysics(),
+                        physics: const ScrollPhysics(),
                       );
                     }
                   default:
-                    return Text('');
+                    return const Text('');
                 }
               })
         ]),

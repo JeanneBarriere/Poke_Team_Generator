@@ -168,10 +168,11 @@ class _DisplayStatsStratWidgetsState extends State<DisplayStatsStratWidgets> {
                       elevation: 0,
                       isExpanded: true,
                       style: const TextStyle(),
-                      underline: Container(
-                        height: 1.5,
-                        color: Palette.kToDark.shade400,
-                      ),
+
+                      // underline: Container(
+                      //   height: 1.8,
+                      //   color: Palette.kToDark.shade400,
+                      // ),
                       onChanged: (newValue) => {
                         setState(() => {
                               _poke!.nature = newValue!.name,
@@ -183,23 +184,36 @@ class _DisplayStatsStratWidgetsState extends State<DisplayStatsStratWidgets> {
                         return DropdownMenuItem<Nature>(
                           value: value,
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(toBeginningOfSentenceCase(value.name)
-                                    as String),
-                                value.increasedStat != ''
-                                    ? Text("+ " +
-                                        value.increasedStat! +
-                                        " / - " +
-                                        value.decreasedStat!)
-                                    : const Text("",
-                                        style: TextStyle(height: 0)),
-                                // value.increasedStat != ""
-                                //     ? Text("- " + value.decreasedStat!)
-                                //     : Text("", style: TextStyle(height: 0)),
-                              ],
+                            padding: const EdgeInsets.all(2.0),
+                            child: Container(
+                              width: 250,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 5.0, vertical: 5.0),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: Palette.kToDark.shade100),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    toBeginningOfSentenceCase(value.name)
+                                        as String,
+                                    style:
+                                        const TextStyle(color: Colors.white70),
+                                  ),
+                                  value.increasedStat != ''
+                                      ? Text(
+                                          "+ " +
+                                              value.increasedStat! +
+                                              " / - " +
+                                              value.decreasedStat!,
+                                          style: const TextStyle(
+                                              color: Colors.white60),
+                                          overflow: TextOverflow.ellipsis)
+                                      : const Text("",
+                                          style: TextStyle(height: 0)),
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -266,7 +280,7 @@ class _DisplayStatsStratWidgetsState extends State<DisplayStatsStratWidgets> {
                                       SizedBox(
                                         width:
                                             MediaQuery.of(context).size.width *
-                                                0.40,
+                                                0.35,
                                         child: SliderTheme(
                                           data: SliderThemeData(
                                             activeTrackColor: Colors.red[700],
@@ -364,7 +378,7 @@ class _DisplayStatsStratWidgetsState extends State<DisplayStatsStratWidgets> {
                                           width: MediaQuery.of(context)
                                                   .size
                                                   .width *
-                                              0.60,
+                                              0.55,
                                           child: SliderTheme(
                                             data: SliderThemeData(
                                               activeTrackColor: Colors.red[700],
@@ -404,10 +418,24 @@ class _DisplayStatsStratWidgetsState extends State<DisplayStatsStratWidgets> {
                                               max: 252,
                                               label:
                                                   "${widget.poke.evs![entry.key].floor()}",
-                                              onChanged: (value) =>
+                                              onChanged: (value) {
+                                                if (_poke!.evs!.reduce(
+                                                            (a, b) => a + b) >
+                                                        510 &&
+                                                    value >
+                                                        _poke!
+                                                            .evs![entry.key]) {
                                                   setState(() {
-                                                _poke!.evs![entry.key] = value;
-                                              }),
+                                                    _poke!.evs![entry.key] =
+                                                        _poke!.evs![entry.key];
+                                                  });
+                                                } else {
+                                                  setState(() {
+                                                    _poke!.evs![entry.key] =
+                                                        value;
+                                                  });
+                                                }
+                                              },
                                             ),
                                           ),
                                         ),
@@ -465,7 +493,7 @@ class _DisplayStatsStratWidgetsState extends State<DisplayStatsStratWidgets> {
                                           width: MediaQuery.of(context)
                                                   .size
                                                   .width *
-                                              0.60,
+                                              0.55,
                                           child: SliderTheme(
                                             data: SliderThemeData(
                                               activeTrackColor: Colors.red[700],

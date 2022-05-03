@@ -4,7 +4,11 @@ class Nature {
   String? decreasedStat;
   String? increasedStat;
 
-  Nature({required this.name, required this.url, this.decreasedStat});
+  Nature(
+      {required this.name,
+      required this.url,
+      this.decreasedStat,
+      this.increasedStat});
 
   factory Nature.fromData(String name, String url) {
     return Nature(name: name, url: url);

@@ -85,6 +85,7 @@ class _TeamListPage extends State<TeamListPage> {
                                                             teamTitle:
                                                                 item.title!,
                                                             numGenerator: -1,
+                                                            id: item.id,
                                                           ),
                                                         ));
                                                       },
@@ -124,15 +125,16 @@ class _TeamListPage extends State<TeamListPage> {
                                                                 children: [
                                                                   Text(
                                                                     "${item.title}",
-                                                                    style: Theme.of(
-                                                                            context)
-                                                                        .textTheme
-                                                                        .headline3,
+                                                                    style: const TextStyle(
+                                                                        color: Colors
+                                                                            .white70,
+                                                                        fontSize:
+                                                                            25),
                                                                     textAlign:
                                                                         TextAlign
                                                                             .start,
                                                                   ),
-                                                                  Container(
+                                                                  SizedBox(
                                                                     width: MediaQuery.of(context)
                                                                             .size
                                                                             .width *
@@ -144,15 +146,20 @@ class _TeamListPage extends State<TeamListPage> {
                                                                               4.0),
                                                                       child:
                                                                           Row(
-                                                                        mainAxisAlignment:
-                                                                            MainAxisAlignment.spaceBetween,
+                                                                        mainAxisAlignment: item.pokemon.length >
+                                                                                5
+                                                                            ? MainAxisAlignment.spaceBetween
+                                                                            : MainAxisAlignment.start,
                                                                         children: item
                                                                             .pokemon
                                                                             .map((e) =>
-                                                                                DisplayIconSmallWidgets(
-                                                                                  name: e,
-                                                                                  size: 45,
-                                                                                  padding: 3,
+                                                                                Padding(
+                                                                                  padding: const EdgeInsets.all(2.0),
+                                                                                  child: DisplayIconSmallWidgets(
+                                                                                    name: e,
+                                                                                    size: 45,
+                                                                                    padding: 3,
+                                                                                  ),
                                                                                 ))
                                                                             .toList(),
                                                                       ),
@@ -179,6 +186,7 @@ class _TeamListPage extends State<TeamListPage> {
                                             title: "New Team",
                                             teamTitle: "",
                                             numGenerator: -1,
+                                            id: 0,
                                           ),
                                         ));
                                       },

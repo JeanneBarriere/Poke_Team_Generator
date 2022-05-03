@@ -1,0 +1,72 @@
+{
+  "natures": [
+    { "name": "hardy", "decreasedStat": "", "increasedStat": "" },
+    { "name": "bold", "decreasedStat": "attack", "increasedStat": "defense" },
+    {
+      "name": "modest",
+      "decreasedStat": "attack",
+      "increasedStat": "special-attack"
+    },
+    {
+      "name": "calm",
+      "decreasedStat": "attack",
+      "increasedStat": "special-defense"
+    },
+    { "name": "timid", "decreasedStat": "attack", "increasedStat": "speed" },
+    { "name": "lonely", "decreasedStat": "defense", "increasedStat": "attack" },
+    { "name": "docile", "decreasedStat": "", "increasedStat": "" },
+    {
+      "name": "mild",
+      "decreasedStat": "defense",
+      "increasedStat": "special-attack"
+    },
+    {
+      "name": "gentle",
+      "decreasedStat": "defense",
+      "increasedStat": "special-defense"
+    },
+    { "name": "hasty", "decreasedStat": "defense", "increasedStat": "speed" },
+    {
+      "name": "adamant",
+      "decreasedStat": "special-attack",
+      "increasedStat": "attack"
+    },
+    {
+      "name": "impish",
+      "decreasedStat": "special-attack",
+      "increasedStat": "defense"
+    },
+    { "name": "bashful", "decreasedStat": "", "increasedStat": "" },
+    {
+      "name": "careful",
+      "decreasedStat": "special-attack",
+      "increasedStat": "special-defense"
+    },
+    {
+      "name": "rash",
+      "decreasedStat": "special-defense",
+      "increasedStat": "special-attack"
+    },
+    {
+      "name": "jolly",
+      "decreasedStat": "special-attack",
+      "increasedStat": "speed"
+    },
+    {
+      "name": "naughty",
+      "decreasedStat": "special-defense",
+      "increasedStat": "attack"
+    },
+    {
+      "name": "lax",
+      "decreasedStat": "special-defense",
+      "increasedStat": "defense"
+    },
+    { "name": "quirky", "decreasedStat": "", "increasedStat": "" },
+    {
+      "name": "naive",
+      "decreasedStat": "special-defense",
+      "increasedStat": "speed"
+    }
+  ]
+}

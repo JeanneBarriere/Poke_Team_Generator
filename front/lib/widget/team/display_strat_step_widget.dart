@@ -4,11 +4,10 @@ import 'package:flutter/rendering.dart';
 import 'package:front/model/natures_model.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:front/model/poke_strat_model.dart';
-import 'package:front/widget/team/display_items_widget.dart';
-import 'package:front/widget/team/display_moves_strat_widget.dart';
-
-import 'display_details_strat_widget.dart';
-import 'display_stats_strat_widget.dart';
+import 'package:front/widget/team/steps/display_strat_step_details_widget.dart';
+import 'package:front/widget/team/steps/display_strat_step_item_widget.dart';
+import 'package:front/widget/team/steps/display_strat_step_moves_widget.dart';
+import 'package:front/widget/team/steps/display_strat_step_stat_widget.dart';
 
 class DisplayStratStepWidgets extends StatefulWidget {
   final PokeStrat pokeStrat;
@@ -31,101 +30,29 @@ class DisplayStratStepWidgets extends StatefulWidget {
 
 class _DisplayStratStepWidgetsState extends State<DisplayStratStepWidgets> {
   PokeStrat? _pokeStrat;
-  final List<bool> _isOpen = [true, false, false, false];
   Poke? _pokeDetails;
-  int _level = 50;
 
   _DisplayStratStepWidgetsState(PokeStrat pokeStrat, Poke pokeDetails) {
     _pokeStrat = pokeStrat;
     _pokeDetails = pokeDetails;
-    _level = pokeStrat.level!;
   }
 
   TextStyle styleTitle = const TextStyle(color: Colors.white70, fontSize: 30.0);
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionPanelList(
-        animationDuration: const Duration(milliseconds: 1000),
-        children: [
-          ExpansionPanel(
-            canTapOnHeader: true,
-            isExpanded: _isOpen[0],
-            body: DisplayDetailsStratWidgets(
-              key: UniqueKey(),
-              gender: _pokeDetails!.gender!,
-              poke: _pokeStrat!,
-              setLevel: (value) => {
-                setState(() {
-                  _level = value;
-                })
-              },
-              abilities: _pokeDetails!.abilities,
-            ),
-            headerBuilder: (BuildContext context, bool isExpanded) {
-              return ListTile(
-                title: Text(
-                  "Details",
-                  style: styleTitle,
-                ),
-              );
-            },
-          ),
-          ExpansionPanel(
-            canTapOnHeader: true,
-            isExpanded: _isOpen[1],
-            body: DisplayStatsStratWidgets(
-                key: UniqueKey(),
-                baseStat: _pokeDetails!.stats,
-                poke: _pokeStrat!,
-                level: _level,
-                natures: widget.natures),
-            headerBuilder: (BuildContext context, bool isExpanded) {
-              return ListTile(
-                title: Text(
-                  "Stats",
-                  style: styleTitle,
-                ),
-              );
-            },
-          ),
-          ExpansionPanel(
-            canTapOnHeader: true,
-            isExpanded: _isOpen[2],
-            body: DisplayMovesStratWidgets(
-              key: UniqueKey(),
-              baseStat: _pokeDetails!.stats,
-              poke: _pokeStrat!,
-              level: _level,
-            ),
-            headerBuilder: (BuildContext context, bool isExpanded) {
-              return ListTile(
-                title: Text(
-                  "Moves",
-                  style: styleTitle,
-                ),
-              );
-            },
-          ),
-          ExpansionPanel(
-            canTapOnHeader: true,
-            isExpanded: _isOpen[3],
-            body: DisplayItemWidgets(
-              key: UniqueKey(),
-              poke: _pokeStrat!,
-            ),
-            headerBuilder: (BuildContext context, bool isExpanded) {
-              return ListTile(
-                title: Text(
-                  "Items",
-                  style: styleTitle,
-                ),
-              );
-            },
-          ),
-        ],
-        expansionCallback: (i, isOpen) => setState(() {
-              _isOpen[i] = !isOpen;
-            }));
+    return Column(
+      children: [
+        DisplayStratStepDetailsWidgets(
+            pokeStrat: _pokeStrat!, pokeDetails: _pokeDetails!),
+        DisplayStratStepStatWidgets(
+            pokeStrat: _pokeStrat!,
+            pokeDetails: _pokeDetails!,
+            natures: widget.natures),
+        DisplayStratStepMovesWidgets(
+            pokeStrat: _pokeStrat!, pokeDetails: _pokeDetails!),
+        DisplayStratStepItemWidgets(pokeStrat: _pokeStrat!)
+      ],
+    );
   }
 }

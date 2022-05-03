@@ -46,7 +46,10 @@ class _AbilitiesDropDownButtonState extends State<AbilitiesDropDownButton> {
           items: widget.abilities.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,
-              child: Text(value),
+              child: Text(
+                value,
+                style: const TextStyle(color: Colors.white70),
+              ),
             );
           }).toList(),
         ),

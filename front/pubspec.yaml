@@ -85,9 +85,13 @@ flutter:
     - assets/images/types/Steel.png
     - assets/images/types/Water.png
 
+    - assets/images/artworks/surf.png
+    - assets/images/artworks/charizard.png
+
     - assets/json/moves.json
     - assets/json/movesLearn.json
     - assets/json/items.json
+    - assets/json/natures.json
 
 flutter_icons:
   android: "launcher_icon"

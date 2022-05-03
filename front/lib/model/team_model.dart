@@ -2,7 +2,7 @@ import 'package:front/model/poke_strat_model.dart';
 
 class Team {
   final String? title;
-  final List<PokeStrat> pokemon;
+  List<PokeStrat> pokemon;
   String newTitle;
 
   Team({
@@ -17,7 +17,8 @@ class Team {
       pokemon.add(PokeStrat.fromJson(poke));
     }
     String? title = parsedJson["title"];
-    return Team(title: title, newTitle: "", pokemon: pokemon);
+    String? newTitle = parsedJson["title"];
+    return Team(title: title, newTitle: newTitle!, pokemon: pokemon);
   }
 
   factory Team.create(List<PokeStrat> team, title, newTitle) {

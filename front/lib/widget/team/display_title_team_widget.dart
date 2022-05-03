@@ -1,13 +1,14 @@
+// ignore_for_file: use_full_hex_values_for_flutter_colors
+
 import 'package:flutter/material.dart';
-import 'package:front/config/palette.dart';
 import 'package:front/model/team_model.dart';
 
 class TeamTitle extends StatefulWidget {
   // ignore: use_key_in_widget_constructors
-  TeamTitle({Key? key, required this.controller, required this.team});
+  const TeamTitle({Key? key, required this.controller, required this.team});
 
   final TextEditingController controller;
-  Team team;
+  final Team team;
 
   @override
   State<TeamTitle> createState() => _TeamTitleState();

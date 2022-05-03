@@ -37,7 +37,7 @@ class DisplayIconSmallBannerWidgets extends StatelessWidget {
                 padding: const EdgeInsets.all(2.0),
                 child: DisplayIconSmallWidgets(
                   name: poke!.name!.toLowerCase(),
-                  size: 40,
+                  size: 38,
                   padding: 8.0,
                 ),
               ),

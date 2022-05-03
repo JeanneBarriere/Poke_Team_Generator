@@ -1,13 +1,13 @@
 // ignore_for_file: use_full_hex_values_for_flutter_colors
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:front/config/palette.dart';
 import 'package:front/model/natures_model.dart';
 import 'package:front/model/poke_model.dart';
 import 'package:front/model/poke_strat_model.dart';
 import 'package:front/model/pokedex_model.dart';
 import 'package:front/model/team_model.dart';
-import 'package:front/pages/list_team_page.dart';
 import 'package:front/widget/display_loader.dart';
 import 'package:front/widget/team/display_icon_small_banner_widget.dart';
 import 'package:front/widget/team/display_strat_step_widget.dart';
@@ -20,47 +20,52 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 
+import 'list_team_page.dart';
+
 class TeamPage extends StatefulWidget {
-  const TeamPage(
-      {Key? key,
-      required this.title,
-      required this.teamTitle,
-      required this.numGenerator})
-      : super(key: key);
+  const TeamPage({
+    Key? key,
+    required this.title,
+    required this.teamTitle,
+    required this.numGenerator,
+    required this.id,
+  }) : super(key: key);
 
   final String title;
   final String teamTitle;
   final int numGenerator;
+  final int id;
 
   @override
   State<TeamPage> createState() {
     // ignore: no_logic_in_create_state, prefer_if_null_operators, unnecessary_null_comparison
-    return _NewTeamPage(teamTitle == null ? "" : teamTitle, numGenerator);
+    return _NewTeamPage(teamTitle == null ? "" : teamTitle, numGenerator, id);
   }
 }
 
 class _NewTeamPage extends State<TeamPage> {
   String _pokeName = "pikachu";
-  List<PokeStrat> _team = [];
   String _title = "";
-  String _newTitle = "";
+  int _id = 0;
   bool _update = false;
   int? _current;
-  Team team = Team.create([], "", "");
+  Team _team = Team.create([], "", "");
   int _numGenerator = -1;
   bool _generate = false;
   PokeStrat _pokeStrat = PokeStrat.fromName("pikachu");
 
-  _NewTeamPage(String teamTitle, int numGenerator) {
+  _NewTeamPage(String teamTitle, int numGenerator, int id) {
     // ignore: unnecessary_null_comparison
+    _id = id;
     _numGenerator = numGenerator;
     if (numGenerator >= 0) {
       _generate = true;
       _getTeamGenerator();
     }
+    // ignore: unnecessary_null_comparison
     if (teamTitle != null && teamTitle != "") {
       _title = teamTitle;
-      _getTeamTitle();
+      _getTeam();
     }
   }
 
@@ -94,7 +99,7 @@ class _NewTeamPage extends State<TeamPage> {
   }
 
   List teamToJson() {
-    return _team.map((poke) => (poke.toJson())).toList();
+    return _team.pokemon.map((poke) => (poke.toJson())).toList();
   }
 
   void alertTitleEmpty() {
@@ -125,7 +130,7 @@ class _NewTeamPage extends State<TeamPage> {
   }
 
   Future<Poke> _addTeam() async {
-    if (team.newTitle == "") {
+    if (_team.newTitle == "") {
       alertTitleEmpty();
       return Future.error("The title of the team must not be empty");
     }
@@ -139,7 +144,7 @@ class _NewTeamPage extends State<TeamPage> {
           "Authorization": "token " + prefs.getString('token')!
         },
         body: json.encode({
-          'title': team.newTitle,
+          'title': _team.newTitle,
           'team': teamToJson(),
         }));
     if (response.statusCode == 200) {
@@ -151,17 +156,17 @@ class _NewTeamPage extends State<TeamPage> {
   }
 
   Future<Poke> _editTeam() async {
-    if (team.newTitle == "") {
+    if (_team.newTitle == "") {
       alertTitleEmpty();
       return Future.error("The title of the team must not be empty");
     }
     var response = await http.post(
         Uri.parse(
-            'http://gentle-ravine-49505.herokuapp.com/editTeam/?format=json'),
+            'http://gentle-ravine-49505.herokuapp.com/editTeam/$_id?format=json'),
         headers: {"Content-Type": "application/json"},
         body: json.encode({
           'title': _title,
-          'newTitle': team.newTitle,
+          'newTitle': _team.newTitle,
           'team': teamToJson()
         }));
     if (response.statusCode == 200) {
@@ -172,26 +177,22 @@ class _NewTeamPage extends State<TeamPage> {
     return Future.error("error");
   }
 
-  Future<void> _getTeamTitle() async {
-    var response = await http.post(
+  Future<void> _getTeam() async {
+    var response = await http.get(
         Uri.parse(
-            'http://gentle-ravine-49505.herokuapp.com/getTeamTitle/?format=json'),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode({'title': _title}));
+            'http://gentle-ravine-49505.herokuapp.com/getTeam/$_id?format=json'),
+        headers: {"Content-Type": "application/json"});
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
-      Team team = Team.fromJson(jsonResponse);
+      _team = Team.fromJson(jsonResponse);
       setState(() {
         _update = true;
-        _newTitle = _title;
-        _team = team.pokemon;
-        if (team.pokemon.isNotEmpty) {
-          _pokeStrat = team.pokemon[0];
+        if (_team.pokemon.isNotEmpty) {
+          _pokeStrat = _team.pokemon[0];
           _current = 0;
         }
       });
-      myController.text = _newTitle;
-      team.update(_team, _title, _newTitle);
+      myController.text = _team.newTitle;
     } else {
       return Future.error("error");
     }
@@ -205,39 +206,26 @@ class _NewTeamPage extends State<TeamPage> {
         headers: {"Content-Type": "application/json"});
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body);
-      Team team = Team.fromJson(jsonResponse);
+      _team = Team.fromJson(jsonResponse);
       setState(() {
         _update = false;
-        _newTitle = "";
-        _team = team.pokemon;
-        if (team.pokemon.isNotEmpty) {
-          _pokeStrat = team.pokemon[0];
+        if (_team.pokemon.isNotEmpty) {
+          _pokeStrat = _team.pokemon[0];
           _current = 0;
         }
       });
-      myController.text = _newTitle;
-      team.update(_team, _title, _newTitle);
+      myController.text = "";
       _generate = false;
     } else {
-      print('Oh no !');
       return Future.error("error");
     }
   }
 
   Future<Natures> _dataNature() async {
-    var response =
-        await http.get(Uri.parse('https://pokeapi.co/api/v2/nature/'));
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      Natures natures = Natures.fromJson(jsonResponse);
-      for (var nature in natures.natures!) {
-        var responseNature = await http.get(Uri.parse(nature.url));
-        final jsonNatures = jsonDecode(responseNature.body);
-        nature.addDetails(jsonNatures);
-      }
-      return natures;
-    }
-    return Future.error("error");
+    final response = await rootBundle.loadString('assets/json/natures.json');
+    final jsonResponse = json.decode(response);
+    Natures natures = Natures.fromJson(jsonResponse);
+    return natures;
   }
 
   _displayPoke(value) {
@@ -288,13 +276,13 @@ class _NewTeamPage extends State<TeamPage> {
                                 child: TeamTitle(
                                     key: UniqueKey(),
                                     controller: myController,
-                                    team: team)),
+                                    team: _team)),
                             Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                     minimumSize: const Size(125, 60)),
-                                onPressed: _team.isEmpty
+                                onPressed: _team.pokemon.isEmpty
                                     ? null
                                     : () {
                                         if (_update) {
@@ -310,12 +298,12 @@ class _NewTeamPage extends State<TeamPage> {
                         ),
                       ),
                       DisplayIconSmallBannerWidgets(
-                        listPoke: _team,
+                        listPoke: _team.pokemon,
                         onPress: (int? newValue) {
                           setState(() {
                             if (newValue != null) {
                               _current = newValue;
-                              _pokeStrat = _team[newValue];
+                              _pokeStrat = _team.pokemon[newValue];
                             } else {
                               _pokeStrat = PokeStrat.fromName('pikachu');
                               _pokeName = 'pikachu';
@@ -408,6 +396,7 @@ class _NewTeamPage extends State<TeamPage> {
                                                     ? ElevatedButton(
                                                         style: ElevatedButton.styleFrom(
                                                             primary: _team
+                                                                        .pokemon
                                                                         .length <
                                                                     6
                                                                 ? Palette
@@ -418,14 +407,16 @@ class _NewTeamPage extends State<TeamPage> {
                                                                 const Size(
                                                                     100, 38)),
                                                         onPressed: () {
-                                                          if (_team.length <
+                                                          if (_team.pokemon
+                                                                  .length <
                                                               6) {
                                                             setState(() {
-                                                              _team.add(
+                                                              _team.pokemon.add(
                                                                   _pokeStrat);
-                                                              _current =
-                                                                  _team.length -
-                                                                      1;
+                                                              _current = _team
+                                                                      .pokemon
+                                                                      .length -
+                                                                  1;
                                                             });
                                                           }
                                                         },
@@ -433,22 +424,19 @@ class _NewTeamPage extends State<TeamPage> {
                                                             'Add Pokemon'),
                                                       )
                                                     : ElevatedButton(
-                                                        style: ElevatedButton.styleFrom(
-                                                            primary: _team
-                                                                        .length <
-                                                                    6
-                                                                ? Palette
-                                                                    .kToDark
-                                                                : const Color(
-                                                                    0xFF727171),
-                                                            minimumSize:
-                                                                const Size(
-                                                                    100, 38)),
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                                primary: Palette
+                                                                    .kToDark,
+                                                                minimumSize:
+                                                                    const Size(
+                                                                        100,
+                                                                        38)),
                                                         onPressed: () {
-                                                          if (_team.length <
-                                                              6) {
+                                                          {
                                                             setState(() {
-                                                              _team[_current!] =
+                                                              _team.pokemon[
+                                                                      _current!] =
                                                                   PokeStrat
                                                                       .fromName(
                                                                           _pokeName);
@@ -471,7 +459,8 @@ class _NewTeamPage extends State<TeamPage> {
                                                         const Size(50, 38)),
                                                 onPressed: () {
                                                   setState(() {
-                                                    _team.removeAt(_current!);
+                                                    _team.pokemon
+                                                        .removeAt(_current!);
                                                     _current = null;
                                                     _pokeStrat =
                                                         PokeStrat.fromName(
